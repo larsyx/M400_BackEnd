@@ -1,0 +1,98 @@
+.aux-container{
+    display: flex;
+    justify-content: center;
+    align-items: center;    
+    flex-direction: column;  
+
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); 
+
+
+    z-index: 1000;           
+    background-color: white;
+    width: 90%;
+    border: 2px solid black;
+    border-radius: 10px;
+    height: 80%;
+    padding: 15px;
+    pointer-events: auto;
+
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+
+}
+
+.aux-container.visible{
+    opacity: 1;
+    visibility: visible;
+}
+
+.aux-inner-container {
+    padding : 20px;
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    height: 100%;
+    gap: 20px; 
+    overflow: hidden; 
+}
+.aux-list{
+    display: flex;
+    flex-direction: row;
+    overflow-x: scroll;
+    width: 100%;
+    gap : 15px;
+}
+
+.aux-channels{
+    display: flex;
+    flex-direction: row;
+    height: 80%;
+    overflow-x: scroll;
+}
+
+.aux-channels-container{
+    display: flex;
+    flex-direction: column;
+    justify-content: end;
+    align-items: center;
+    height: 95%;
+    gap : 15px
+}
+
+
+input[type="radio"] {
+    display: none;
+}
+
+.aux-list label {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    border: 1px solid #ccc;
+    border-radius: 6px;
+    background-color: #f0f0f0;
+    cursor: pointer;
+    transition: background-color 0.2s;
+    min-width: 120px;
+    height: 70px;
+    white-space: nowrap;
+}
+
+input[type="radio"]:checked + label {
+    background-color: #007bff;
+    color: white;
+    border-color: #007bff;
+}
+
+.aux-channels-container input[type="range"] {
+    height: 60%;
+    min-height: fit-content;
+    writing-mode: vertical-lr;
+    direction: rtl;
+    width: 15px;
+}

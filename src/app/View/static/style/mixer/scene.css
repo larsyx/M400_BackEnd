@@ -1,0 +1,72 @@
+.descrizione {
+    width: 150px;
+    text-align: center;
+}
+
+.mute {
+    display: inline-block;
+    width: auto;
+    height: 30px;
+    padding: 2px 5px 0 5px;
+    min-height: 20px;
+    min-width: 20px;
+    background-color: red;
+    border-radius: 10px;
+    cursor: pointer;
+}
+
+input[type="checkbox"]:checked + .mute {
+    background-color: #4CAF50;
+}
+
+button[type="button"]{
+    -webkit-appearance: none;
+    appearance: none;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 25px;
+    height: 25px;
+    border : 1px solid black;
+    text-align: center;
+    border-radius: 30%;
+    background-color: #f5f0f0;
+    color: black;
+}
+
+button{
+    margin-inline : 1rem;
+}
+
+button {
+    touch-action: manipulation;
+}
+
+
+#main {
+    margin: 10px;
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    flex-direction: row;
+    align-items: center;
+}
+
+#main input[type="range"] {
+    width: 50%;
+    min-width: 100px;
+    height: 15px !important;
+    min-height: 15px !important;
+    writing-mode: horizontal-tb;
+    direction: ltr;
+}
+
+#main .descrizione {
+    width: auto;
+}
+
+
+input[type="range"] {
+    writing-mode: vertical-lr;
+    direction: rtl;
+}

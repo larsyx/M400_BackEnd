@@ -1,0 +1,90 @@
+{
+    "channels": [
+        {
+            "id": 1,
+            "descrizione": "Fisarmonica/basso"
+        },
+        {
+            "id": 2,
+            "descrizione": "Gtr Gab"
+        },
+        {
+            "id": 3,
+            "descrizione": "Gtr Gio"
+        },
+        {
+            "id": 4,
+            "descrizione": "Gtr Samu"
+        },
+        {
+            "id": 5,
+            "descrizione": "Piano L"
+        },
+        {
+            "id": 7,
+            "descrizione": "Piano Don"
+        },
+        {
+            "id": 10,
+            "descrizione": "Vox 1"
+        },
+        {
+            "id": 11,
+            "descrizione": "Vox 2"
+        },
+        {
+            "id": 12,
+            "descrizione": "Vox 3"
+        },
+        {
+            "id": 13,
+            "descrizione": "Vox 4"
+        },
+        {
+            "id": 14,
+            "descrizione": "Vox 5"
+        },
+        {
+            "id": 15,
+            "descrizione": "Vox 6"
+        }
+    ],
+    "drums": [
+        {
+            "id": 25,
+            "descrizione": "Kick"
+        },
+        {
+            "id": 26,
+            "descrizione": "SN up"
+        },
+        {
+            "id": 27,
+            "descrizione": "SN dw"
+        },
+        {
+            "id": 28,
+            "descrizione": "HH"
+        },
+        {
+            "id": 29,
+            "descrizione": "Tom"
+        },
+        {
+            "id": 30,
+            "descrizione": "Tom"
+        },
+        {
+            "id": 31,
+            "descrizione": "Floor Tom"
+        },
+        {
+            "id": 32,
+            "descrizione": "OH L"
+        },
+        {
+            "id": 33,
+            "descrizione": "OH R"
+        }
+    ]
+}

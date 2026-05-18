@@ -1,0 +1,141 @@
+
+.container{
+    margin-top: 5%;
+    display: grid;
+    grid-template-columns: 5fr 1fr;
+}
+
+.sliders-main{
+    display: flex;
+    flex-direction: column;
+    width: 100%;
+    gap: 15px;
+}
+
+.range-horizontal{
+    display: flex;
+    justify-content: center;
+    width: 90%;
+    padding: 5px;
+    gap: 25px
+}
+.range-horizontal input[type=range]{
+    flex: 1;
+    width: 70%;
+    
+}
+
+.canale-container{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 5px;
+}
+
+.lateral{
+    display: flex;
+    flex-direction: column;
+    gap: 30px;
+}
+
+.sticky{
+    position: fixed;
+    top: 12%;
+    z-index: 0;
+}
+
+.main-fader{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    padding: 10px;
+    gap: 5px;
+}
+.main-fader input[type=range]{
+    writing-mode: vertical-lr;
+    direction: rtl;
+    height: 50%;             
+}
+
+.menu{
+    display: flex;
+    justify-content: center;
+    gap: 20px;
+    margin: 30px;
+}
+
+.drum{
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+    padding-top: 5px;
+    padding-bottom: 5px;
+    gap: 5px
+}
+
+
+button, i {
+    touch-action: manipulation;
+    border-radius: 5px !important;
+}
+
+.close-span{
+    display: none;
+}
+
+@media screen and (max-width: 500px) {
+     #main-button{
+        display: block !important;
+        position: fixed;
+        top:48%;
+        right:-5%;
+        font-size: 45px;
+        color: #0D6EFD;
+    }
+
+    .close-span{
+        display: block ;
+        right: 3% !important;
+        top: -1% !important;
+    }
+
+    .container{
+        display: block;
+        margin-top: 8%;
+    }
+
+    .lateral {
+        position: fixed;
+        top: 12%;
+        right: 0;
+        width: 20%;
+        max-width: 300px;
+        background-color: white;
+        border-radius: 12px;
+        box-shadow: -2px 0 8px rgba(0,0,0,0.2);
+        transform: translateX(100%);
+        transition: transform 0.4s ease-in-out;
+        z-index: 1000;
+    }
+
+    .lateral.show {
+        transform: translateX(0);
+    }
+
+    .container.shifted {
+        margin-right: 70%;
+        transition: margin 0.4s ease-in-out;
+    }
+
+    #main-button {
+        z-index: 1100;
+    }
+
+    .sticky{
+        position: static;
+    }
+}

@@ -1,0 +1,94 @@
+.profile-name{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    color: #0D6EFD;
+    margin: 5px;
+}
+
+.sidenav {
+    height: 100%;
+    width: 0;
+    position: fixed;
+    z-index: 1;
+    top: 0;
+    left: 0;
+    background-color: #111;
+    overflow-x: hidden;
+    transition: 0.5s;
+    padding-top: 60px;
+}
+
+.sidenav a {
+    margin: 0 12px;
+    padding: 12px 8px 8px 12px;
+    text-decoration: none;
+    font-size: 25px;
+    color: #818181;
+    display: flex;
+    justify-content: space-between;
+    transition: 0.3s;
+    border-radius: 15px;
+    align-items: center;
+}
+
+.sidenav .text-profile {
+    margin: 0 12px;
+    padding: 12px 8px 8px 12px;
+    color: #818181;
+    display: flex;
+    justify-content: space-between;
+    transition: 0.3s;
+    background-color: #111;
+
+}
+
+.text-profile input{
+    width: 80%;
+    background-color: #373737;
+    border-radius: 15px;
+    color: white;
+}
+
+.text-profile button{
+    border-radius: 10px;
+    width: 30px;
+    height: 30px;
+    border-color: #373737;
+    background-color: #373737;
+    color: #818181;
+    align-items: center;
+    display: flex;
+    justify-content: center;
+}
+
+.sidenav a:hover {
+    color: #f1f1f1;
+}
+
+.sidenav .closebtn {
+    position: absolute;
+    top: 0;
+    right: 0;
+    font-size: 36px;
+    margin-left: 50px;
+}
+
+.sidenav .deleteAll{
+    position: absolute;
+    bottom : 0;
+    right: 0;
+    color: red;
+}
+
+.selected{
+    background-color: beige;
+}
+
+
+
+@media screen and (max-height: 450px) {
+    .sidenav {padding-top: 15px;}
+    .sidenav a {font-size: 18px;}
+}

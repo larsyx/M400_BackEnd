@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>M-400 remote control</title>
+        <link rel="icon" type="image/png" href="/static/resource/mixer_icon.png" />
+        <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.4/css/all.min.css">
+        
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="/static/style/common/menu.css">
+
+        <style>
+
+            .confirmation-message{
+                position : absolute;
+                top:50%;
+                left:50%;
+                transform: translate(-50%, -50%);
+                background-color: #f9f9f9;
+                border: 2px solid #ccc;
+                border-radius: 10px;
+                width: 200px;
+                height: 100px;
+
+                display: none;
+                flex-direction: column;
+                align-items: center;
+            }
+
+            
+
+            .layout-container {
+                display: inline-flex;
+                flex-wrap: wrap;
+                justify-content: center;
+                width: 100%;
+            }
+            .channel-layout {
+                width: 45%;
+                margin: 10px;
+                padding: 10px;
+                border: 1px solid #ccc;
+                border-radius: 10px;
+                background-color: #f9f9f9;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+            .channel-layout ul{
+              list-style: none;
+              padding: 0;
+              width: 80%;
+              display: flex;
+              flex-direction: column;
+              align-items: center;
+            }
+            .channel-layout li{
+                width: 95%;
+                padding: 10px;
+                margin: 5px 0;
+                background-color: #f0f0f0;
+                border: 1px solid #ccc;
+                border-radius: 10px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+            }
+
+            #addbuttons {
+                width: 100%;
+                display: grid;
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                justify-content: center;
+                margin-bottom: 20px;
+            }
+
+            #addbuttons button {
+                margin: 3px;
+                padding: 5px;
+                width: 95%;
+                height: 95%;
+                border-radius: 5px;
+                cursor: pointer;
+            }
+
+            @media screen and (max-width: 930px) {
+                input[type="text"] {
+                    width: 100px;
+                }
+                
+            }
+
+            @media screen and (max-width: 700px) {
+                input[type="text"] {
+                    width: 60px;
+                }
+
+                .channel-layout {
+                    width: 90%;
+                }
+                
+            }
+        </style>
+
+        <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+        <script src="https://kit.fontawesome.com/a076d05399.js" crossorigin="anonymous"></script>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
+    </head>
+
+    <body>
+        <div class="menu-buttons position-fixed top-0 end-0 m-3">
+            <div class="dropdown">
+                <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    ☰
+                </button>
+                <ul id="menu-dropdown" class="dropdown-menu dropdown-menu-end mt-2">
+                    <li><a class="dropdown-item" href="/admin">Home</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item text-danger" href="/logout">Esci</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div id ="addbuttons">
+            {% for canale in canali %}
+            <div id= "Add_{{canale.id}}" style="display: inline-block;">
+                <button type="button" draggable="true" onclick="addChannelConfirmation({{canale.id}}, '{{canale.name}} {% if canale.description is not none %}: {{ canale.description }} {% endif %}')">{{canale.name}}
+                    {% if canale.description is not none %}
+                        : {{ canale.description }}
+                    {% endif %}
+                </button>
+            </div>
+            {% endfor %}
+        </div>
+
+        <div class="confirmation-message">
+            <p>Descrizione</p>
+            <div class="buttons">
+                <button type="button" onclick="addChannel('channels')">Canali</button>
+                <button type="button" onclick="addChannel('drums')">Batteria</button>
+            </div>
+        </div>
+
+        <div class="layout-container">
+            <div class="channel-layout">
+                <span>Canali layout</span>
+                <ul id="sortable-channels">
+                {% for layoutcanale in channels_layout %}
+                    <li id ="Remove_{{layoutcanale.id}}" class="channelLayout" draggable="true">{{layoutcanale.id}} 
+                        <input type="text" value="{{layoutcanale.description}}"> 
+                        <div style="display: inline-block;">
+                            <button type="button" onclick="removeChannelLayout({{layoutcanale.id}})">Elimina</button>
+                        </div>
+                        <i class="fas fa-arrows-alt drag"></i>
+                    </li>                
+                {% endfor %}
+                </ul>
+            </div>
+            <div class="channel-layout">
+                <span>Drum layout</span>
+                <ul id="sortable-drums">
+                {% for drum in drums_layout %}
+                    <li id ="Remove_{{drum.id}}" class="channelLayout" draggable="true">{{drum.id}} 
+                        <input type="text" value="{{drum.description}}"> 
+                        <div style="display: inline-block;">
+                            <button type="button" onclick="removeChannelLayout({{drum.id}})">Elimina</button>
+                        </div>
+                        <i class="fas fa-arrows-alt drag"></i>
+                    </li>                
+                {% endfor %}
+                </ul>
+            </div>
+        </div>
+
+                
+
+        <div>
+            <button type = "button" onclick="saveLayout()">Salva Layout</button>
+        </div>
+
+        <script>
+            new Sortable(document.getElementById("sortable-channels"), {
+                animation: 150,
+                handle: ".drag"
+            });
+
+            new Sortable(document.getElementById("sortable-drums"), {
+                animation: 150,
+                handle: ".drag"
+            });
+
+            canale_id = null;
+            canale_descrizione = null;
+
+            function addChannelConfirmation(canaleId, descrizione) {
+                const confirmationMessage = document.querySelector('.confirmation-message');
+                confirmationMessage.style.display = 'flex';
+                confirmationMessage.querySelector('p').textContent = `Aggiungi ${descrizione}`;
+                canale_id = canaleId;
+                canale_descrizione = descrizione;
+            }
+
+            function addChannel(type){
+                const confirmationMessage = document.querySelector('.confirmation-message');
+                confirmationMessage.style.display = 'none';
+
+                if (canale_id !== null && canale_descrizione !== null) {
+                    let list;
+                    switch(type) {
+                        case 'channels':
+                            list = document.getElementById("sortable-channels");
+                            break;
+                        case 'drums':
+                            list = document.getElementById("sortable-drums");
+                            break;
+                    }
+                    if(list){
+                        const newItem = document.createElement("li");
+                        newItem.id = `Remove_${canale_id}`;
+                        newItem.className = "channelLayout";
+                        newItem.draggable = true;
+                        newItem.innerHTML = `${canale_id} <input type="text" value="${canale_descrizione}"> <div style="display: inline-block;"><button type="button" onclick="removeChannelLayout(${canale_id})">Elimina</button></div> <i class="fas fa-arrows-alt drag"></i>`;
+                        list.appendChild(newItem);
+
+                        // remove the button from the addbuttons section
+                        const buttonToRemove = document.getElementById(`Add_${canale_id}`);
+                        if (buttonToRemove) {
+                            buttonToRemove.remove();
+                        }
+                    } 
+
+                    canale_id = null;
+                    canale_descrizione = null;
+                }
+            }
+
+            function removeChannelLayout(canaleId) {
+                const item = document.getElementById(`Remove_${canaleId}`);
+                if (item) {
+                    item.remove();
+                }
+
+                const buttonContainer = document.getElementById("addbuttons");
+                const newButton = document.createElement("div");
+                newButton.id = `Add_${canaleId}`;
+                newButton.style.display = "inline-block";
+                newButton.innerHTML = `<button type="button" onclick="addChannelConfirmation(${canaleId}, '${item.querySelector('input').value}')">${item.querySelector('input').value}</button>`;
+                buttonContainer.appendChild(newButton);
+            }
+
+            function saveLayout(){
+                let channel_list = document.getElementById("sortable-channels");
+
+                let channelsLayout = channel_list.getElementsByClassName("channelLayout");
+                
+                let channelsLayoutArray = []
+                for(let i=0; i<channelsLayout.length; i++){
+                    const canaleId = channelsLayout[i].childNodes[0].nodeValue.trim();
+                    const descrizione = channelsLayout[i].querySelector('input[type="text"], input:not([type="hidden"])').value;
+
+                    ch = { 
+                        id: parseInt(canaleId, 10),
+                        descrizione: descrizione
+                    };
+                    channelsLayoutArray.push(ch);
+                }
+
+                let drums_list = document.getElementById("sortable-drums");
+
+                let drums_layout = drums_list.getElementsByClassName("channelLayout");
+                
+                let drums_array = []
+                for(let i=0; i< drums_layout.length; i++){
+                    const canaleId = drums_layout[i].childNodes[0].nodeValue.trim();
+                    const descrizione = drums_layout[i].querySelector('input[type="text"], input:not([type="hidden"])').value;
+
+                    ch = { 
+                        id: parseInt(canaleId, 10),
+                        descrizione: descrizione
+                    };
+                    drums_array.push(ch);
+                }
+
+                request = {
+                    channels: channelsLayoutArray,
+                    drums: drums_array
+                };
+
+                const xhttp = new XMLHttpRequest();
+                xhttp.open("POST", "./set/defaultUserLayout");
+                xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+                xhttp.onload = function(){
+                    alert(xhttp.responseText);
+                }
+
+                xhttp.send(JSON.stringify(request));
+
+            }
+        </script>
+</html>

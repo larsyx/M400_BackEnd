@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>M-400 remote control</title>
+        <link rel="icon" type="image/png" href="/static/resource/mixer_icon.png" />
+
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="/static/style/common/menu.css">
+
+        <style>
+            .buttons {
+                display: flex;
+                flex-direction : column;
+                justify-content: center;
+                align-items: center;
+                height: 100vh;
+                
+            }
+
+            .buttons button {
+                width: 60%;
+                height: auto;
+                font-size: 2rem !important;
+                margin: 1rem;
+            }
+
+        </style>
+    </head>
+
+    <body>
+
+        <div class="menu-buttons position-fixed top-0 end-0 m-3">
+            <div class="dropdown">
+                <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    ☰
+                </button>
+                <ul id="menu-dropdown" class="dropdown-menu dropdown-menu-end mt-2">
+                    <li><a class="dropdown-item" href="/admin">Home</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item text-danger" href="/logout">Esci</a></li>
+                </ul>
+            </div>
+        </div>
+
+        <div class="buttons">
+            <button type="button" class="btn btn-secondary" onclick="window.location.href='admin/manageUser'">Gestione Utenti</button>
+            <button type="button" class="btn btn-secondary" onclick="window.location.href='admin/manageScene'">Gestione Scene</button>
+            <button type="button" class="btn btn-secondary" onclick="window.location.href='admin/manageChannels'">Gestione Canali</button>
+            <button type="button" class="btn btn-secondary" onclick="window.location.href='admin/manageSceneMixer'">Gestione Scene Mixer</button>
+            <button type="button" class="btn btn-secondary" onclick="window.location.href='admin/defaultUserLayout'">Layout utenti</button>
+        </div>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
+    </body>
+</html>

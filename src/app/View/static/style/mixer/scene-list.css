@@ -1,0 +1,37 @@
+
+.scene-container-list{
+    display: flex;
+    justify-content: center; /* centra orizzontalmente */
+    align-items: center;     /* centra verticalmente */
+    flex-direction: column;  /* se vuoi disporre gli elementi uno sotto l’altro */
+
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* centra rispetto al suo centro */
+
+
+    z-index: 1000;   /* resta sopra agli altri elementi */            
+    background-color: white;
+    width: auto;
+    min-width: 40%;
+    border: 2px solid black;
+    border-radius: 2%;
+    height: auto;
+    padding: 5%;
+
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+.scene-container-list.visible{
+    opacity: 1;
+    visibility: visible;
+}
+
+.scene-container-list table{
+    width: 100%;
+    border-collapse: separate;
+    border-spacing: 10px; 
+}

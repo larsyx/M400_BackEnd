@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>M-400 remote control</title>
+        <link rel="icon" type="image/png" href="/static/resource/mixer_icon.png" />
+
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link rel="stylesheet" href="/static/style/common/menu.css">
+        <link rel="stylesheet" href="/static/style/administration/form.css">
+
+        <style>
+
+            body{
+                padding: 20px;
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 15px;
+                overflow-x: hidden;
+            }
+
+
+              .back-button {
+                position: fixed;
+                bottom: 20px;
+                right: 20px;
+                z-index: 1000;
+            }
+        </style>
+    </head>
+
+    <body>
+        <div class="menu-buttons position-fixed top-0 end-0 m-3">
+            <div class="dropdown">
+                <button class="btn btn-primary dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                    ☰
+                </button>
+                <ul id="menu-dropdown" class="dropdown-menu dropdown-menu-end mt-2">
+                    <li><a class="dropdown-item" href="/admin">Home</a></li>
+                    <li><hr class="dropdown-divider"></li>
+                    <li><a class="dropdown-item text-danger" href="/logout">Esci</a></li>
+                </ul>
+            </div>
+        </div>
+
+        {% if scene %}
+        <div>
+            <h3>{{scene.id}} - {{scene.name}}</h3>
+            <h5>{{scene.description}}</h5>
+        </div>
+
+
+        <div class="form-container">
+            <div class="form-group">
+                <label for="user">Utente</label>
+                <select class="form-select" name="username" id="user">
+                    {% for user in users%}
+                    <option value="{{user.username}}">{{user.name}}</option>
+                    {% endfor %}    
+                </select><br>
+            </div>
+            <div class="form-group">
+                <label for="aux">Aux</label>
+                <select class="form-select" name="aux" id="aux">
+                    {% for aux, nome in auxs%}
+                    <option value="{{aux.id}}">{{aux.name}} {{nome}}</option>
+                    {% endfor %}
+                </select> <br><br>
+            </div>
+            <div class="form-group">
+                <button id="button-add-participant" type="button" class="btn btn-primary" onclick="addPartecipante()">Inserisci Partecipante</button>
+            </div>
+        </div>
+        <div>
+            <div id="spinner-container" style="display: none;">
+                <div id="spinner" class="d-flex justify-content-center">
+                    <div class="spinner-border" role="status">
+                    </div>
+                </div>
+            </div>
+
+            <p id="message" class="text-wrap"></p>
+
+        </div>
+
+        <div id="participant-list">
+            <table class="table">
+                <thead>
+                    <tr>
+                        <th class="col">Utente</th>
+                        <th class="col">Aux</th>
+                        <th class="col"></th>
+                    </tr>
+                </thead>
+                <tbody id="participant-body-list">
+                    {% for partecipante in partecipanti%}
+                    <tr id="participant-{{partecipante.user_username}}">
+                        <td>{{partecipante.user_username}}</td>
+                        <td>
+                            <select class="form-select" onchange="changeAux('{{partecipante.user_username}}', this.value);" name="aux">
+                                {% for aux, nome in auxs%}
+                                <option value="{{aux.id}}" {% if aux.id|string == partecipante.aux_id|string %}selected{% endif %}>{{aux.name}} {{nome}}</option>
+                                {% endfor %}
+                            </select>
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-secondary" onclick="removePartecipante('{{partecipante.user_username}}', '{{partecipante.aux_id}}');">Elimina</button>
+                        </td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
+
+        <div style="margin-top: 5rem;">
+            <form action="./deleteScene" method="post" onsubmit="return confirm('Sei sicuro di voler eliminare questa scena?');">
+                <button type="submit" class="btn btn-primary">Elimina Scena</button>
+            </form>
+        </div>
+        {% endif %}
+        
+        <div class="back-button">
+            <button type="button" class="btn btn-secondary" onclick="window.location.href='/admin/manageScene'">Indietro</button>
+        </div>
+
+        <script>
+            function changeAux(user, aux){
+
+                const xhttp = new XMLHttpRequest();
+                xhttp.open("POST", "./changeAux", true)
+                xhttp.setRequestHeader("Content-Type", "application/json;charset=UTF-8");
+
+                const message = {
+                        user: user,
+                        aux: aux
+                };
+
+                xhttp.send(JSON.stringify(message));
+
+            }
+
+
+            function addPartecipante(){
+                event.preventDefault();
+
+                showSpinner();
+
+                xhttp = new XMLHttpRequest();
+                xhttp.open("POST", "./addParticipants");
+                xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+
+                const user_dropdown = document.getElementById("user");
+                const selectedOption = user_dropdown.options[user_dropdown.selectedIndex];
+
+                const aux_dropdown = document.getElementById("aux");
+                const selectedAux = aux_dropdown.options[aux_dropdown.selectedIndex];
+
+                const dati = `username=${encodeURIComponent(selectedOption.value)}&aux=${encodeURIComponent(selectedAux.value)}`;
+
+                xhttp.onload = function () {
+                    hideSpinner();
+                    if (xhttp.status === 200) {
+                        const data = JSON.parse(xhttp.responseText);
+                        const obj = JSON.parse(data);
+
+                        if(obj['status']){
+                            const participant_container = document.getElementById("participant-body-list");
+
+                            if (selectedOption) {
+                                const participant = selectedOption.value;
+                                const aux = selectedAux.value;
+
+                                user_dropdown.removeChild(selectedOption);
+
+                                const tr = document.createElement('tr');
+                                tr.id = "participant-" + participant;
+                                
+                                const td_user = document.createElement('td');
+                                td_user.textContent = participant;
+
+                                tr.appendChild(td_user);
+
+                                const td_select = document.createElement('td');
+
+                                // 2. Creo la select
+                                const select = document.createElement('select');
+                                select.name = 'aux';
+                                select.classList.add("form-select");
+                                select.onchange = function() {
+                                    changeAux(participant, this.value);
+                                };
+
+                                // Popolo la select con gli aux
+                                {% for aux, nome in auxs %}
+                                var option = document.createElement("option");
+                                option.value = "{{ aux.id }}";
+                                option.textContent = "{{ aux.name }} {{ nome }}";
+
+                                if(option.value == selectedAux.value)
+                                    option.selected = true;
+
+                                select.appendChild(option);
+                                {% endfor %}
+
+                                td_select.appendChild(select);
+                                tr.appendChild(td_select);
+
+                                const td_button = document.createElement('td');
+
+                                // 3. Creo il form per eliminare
+                                const button = document.createElement('button');
+                                button.type="button";
+                                button.onclick = () => removePartecipante(participant, aux);
+                                button.classList.add('btn');
+                                button.classList.add('btn-secondary');
+                                button.textContent="Elimina";
+
+                                td_button.appendChild(button);
+                                tr.appendChild(td_button);
+
+                                participant_container.append(tr);
+
+                            }
+                        }
+
+                        document.getElementById("message").innerHTML= obj.message;
+
+                    } else {
+                        console.error("Errore nel caricamento:", xhttp.status);
+                    }
+                };
+
+                xhttp.onerror = function () {
+                    console.error("Errore di rete nella richiesta AJAX");
+                };
+                
+                xhttp.send(dati);
+            }
+
+            function removePartecipante(participant, aux){
+                showSpinner();
+                xhttp = new XMLHttpRequest();
+                xhttp.open("DELETE", "./removeParticipants");
+                xhttp.setRequestHeader("Content-Type", "application/x-www-form-urlencoded");
+
+
+                const dati = `username=${encodeURIComponent(participant)}`;
+
+                xhttp.onload = function () {
+                    hideSpinner();
+                    if (xhttp.status === 200) {
+                        const obj = JSON.parse(xhttp.responseText);
+
+                        if(true){
+                            const participant_container = document.getElementById("participant-body-list");
+                            
+                            const objRemove = document.getElementById(`participant-${participant}`);
+
+                            if(objRemove)
+                                participant_container.removeChild(objRemove);
+
+
+                            const option = document.createElement('option');
+                            option.value = participant;
+                            option.textContent = participant;
+
+                            const select = document.getElementById("user");
+                            if(select)
+                                select.appendChild(option);
+                        }
+
+                        document.getElementById("message").innerHTML= obj.message;
+
+                    } else {
+                        console.error("Errore nel caricamento:", xhttp.status);
+                    }
+                };
+
+                xhttp.onerror = function () {
+                    console.error("Errore di rete nella richiesta AJAX");
+                };
+                
+                xhttp.send(dati);
+            }
+
+            function showSpinner() {
+                document.getElementById("spinner-container").style.display = "flex";
+                document.getElementById("message").innerHTML = "";
+                document.getElementById("button-add-participant").disabled = true;
+            }
+
+            function hideSpinner() {
+                document.getElementById("spinner-container").style.display = "none";
+                document.getElementById("button-add-participant").disabled = false;
+            }
+        </script>
+
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
+    </body>
+</html>

@@ -1,0 +1,10 @@
+fastapi
+uvicorn
+wsproto
+sqlalchemy
+mido
+python-rtmidi
+dotenv
+python-multipart
+python-jose[cryptography]
+jinja2

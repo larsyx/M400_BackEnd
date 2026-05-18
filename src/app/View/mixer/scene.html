@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>M-400 remote control</title>
+        <link rel="icon" type="image/png" href="/static/resource/mixer_icon.png" />
+        <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
+        <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css" rel="stylesheet">
+
+  
+
+        <link rel="stylesheet" href="/static/style/mixer/scene-list.css">
+        <link rel="stylesheet" href="/static/style/common/range.css">
+        <link rel="stylesheet" href="/static/style/common/menu.css">
+        <link rel="stylesheet" href="/static/style/common/base.css">
+        <link rel="stylesheet" href="/static/style/mixer/scene.css">
+        <link rel="stylesheet" href="/static/style/mixer/eq.css">
+        <link rel="stylesheet" href="/static/style/mixer/aux_view.css">
+        <link rel="stylesheet" href="/static/style/mixer/disposition.css">
+
+        <link id="layout-style" rel="stylesheet" href="/static/style/mixer/horizontal-layout.css">
+        <style>
+            body{
+                padding-top: 10px;
+                padding-bottom: 10px;
+            }
+
+            .alert{
+                position: fixed;
+                z-index: 1000;
+            }
+
+            .hidden-important{
+                display: none !important;
+                align-items: center;
+            }
+        </style>
+
+        <script src="https://cdn.jsdelivr.net/npm/sortablejs@latest/Sortable.min.js"></script>
+    </head>
+
+    <body>
+
+        <div class="menu-buttons position-fixed top-0 end-0 m-3">
+            <div class="dropdown">
+            <button class="btn btn-primary dropdown-toggle circle-btn" type="button" data-bs-toggle="dropdown" aria-expanded="false">
+                ☰
+            </button>
+            <ul id="menu-dropdown" class="dropdown-menu dropdown-menu-end mt-2">
+                <li><a class="dropdown-item" onclick="openScene()">Scene</a></li>
+                <li><a class="dropdown-item" onclick="switchLayout()">Layout</a></li>
+                <li><a class="dropdown-item" onclick="openAuxs()">Aux</a></li>
+                <li><a class="dropdown-item" onclick="openDisposition()">Disposizione</a></li>
+                <li><hr class="dropdown-divider"></li>
+                <li><a class="dropdown-item text-danger" href="/logout">Esci</a></li>
+            </ul>
+            </div>
+        </div>
+
+        <script src="https://code.jquery.com/jquery-3.3.1.min.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/popper.js@1.14.7/dist/umd/popper.min.js" integrity="sha384-UO2eT0CpHqdSJQ6hJty5KVphtPhzWj9WO1clHTMGa3JDZwrnQq4sF86dIHNDz0W1" crossorigin="anonymous"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@4.3.1/dist/js/bootstrap.min.js" integrity="sha384-JjSmVgyd0p3pXB1rRibZUAYoIIy6OrQ6VrjIEaFf/nJGzIxFDsf4x0xIM+B07jRM" crossorigin="anonymous"></script>
+
+        <div class="alert alert-warning alert-dismissible fade show" role="alert" hidden>
+            <p></p>
+            <button type="button" class="close" data-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+
+
+        <div class="slider_dca">
+            {% for dca, value, switch, name in dcas%}
+                <div class="canale-container">
+
+                    <input id="dca_switch_{{dca.id}}" onchange="checkSwitchDca({{dca.id}}, this.checked)" type="checkbox"{% if switch %} checked {% endif %} hidden>
+                    <label for="dca_switch_{{dca.id}}" class="mute">{{dca.name}}</label>
+
+                    <button type="button" onclick="changeValue({{ dca.id }}, 'plus', 'dca')">+</button>
+                    <input class="inputRange vertical"  type="range" min="0" max="100" value="{{value}}" id="dca_canale_{{ dca.id }}" onchange="sendMessageDca( {{dca.id}} , this.value);" oninput="sendMessageDca({{dca.id}} , this.value);">
+                    <button type="button"  onclick="changeValue({{ dca.id }}, 'minus', 'dca')" >-</button>
+
+                    <span class="descrizione">{% if name is not none %} <strong>{{ name }}</strong> {% endif %}</span>
+                </div>
+            {% endfor %}
+       </div>
+
+       <div class="slider">
+            {% for canale, value, switch, name, link in canali %}
+                {% if not link %}
+                <div class="canale-container">
+                    <input id="switch_{{canale.id}}" onchange="checkSwitch({{canale.id}}, this.checked)" type="checkbox"  {% if switch %} checked {% endif %} hidden>
+                    <label for="switch_{{canale.id}}" class="mute">{{canale.name}}</label>
+
+                    <button type="button" onclick="changeValue({{ canale.id }}, 'plus')">+</button>
+                    <input class="inputRange vertical"  type="range"  min="0" max="100" value="{{value}}" id="canale_{{ canale.id }}" onchange="sendMessage( {{ canale.id }}, this.value);" oninput="sendMessage({{ canale.id }}, this.value);">
+                    <button type="button"  onclick="changeValue({{ canale.id }}, 'minus')" >-</button>
+                    <button class="eq-button" type="button" onclick="openEq({{canale.id}}, '{{name}}')" style="font-size: 12px;">EQ</button>
+
+                    <span class="descrizione">{% if name is not none %} <strong> {{ name }}</strong> {% endif %}</span>
+                </div>
+                {% endif %}
+            {% endfor %}
+       </div>
+
+        <div id="main" class="canale-container">
+            <input id="switch_main" onchange="checkSwitchMain(this.checked)" type="checkbox"  {% if switchMain %} checked {% endif %} hidden>
+            <label for="switch_main" class="mute">Main</label>
+            <button type="button"  onclick="changeValue('main', 'minus')" >-</button>
+            <input class="inputRange vertical"  type="range" min="0" max="100" value="{{valueMain}}" id="canale_main" onchange="sendMessageMain(this.value);" oninput="sendMessageMain(this.value);">
+            <button type="button" onclick="changeValue('main', 'plus')">+</button>
+        </div> 
+
+
+        <div class="scene-container-list" >
+            <span class="scene-close close-span" onclick="openScene()">&times;</span>
+            <table>
+                <tr>
+                    <th>ID</th>
+                    <th>Nome</th>
+                    <th></th>
+                </tr>
+                {% for scene in scenes%}
+                <tr>
+                    <td>{{scene.id}}</td>
+                    <td>{{scene.name}}</td> 
+                    <td><button style="width: auto; border-radius: 0%;" type="button" onclick="window.location.href='./loadScene/{{scene.id}}';">Richiama</button></td>
+                </tr>
+                {% endfor %}
+            </table>   
+        </div>
+
+        <div class="disposition-container">
+            <span class="scene-close close-span" onclick="openDisposition()">&times;</span>
+
+            <h4>Disposizione Canali</h4>
+
+            <ul id="sortable-element">
+            {% for canale, value, switch, name, link in canali %}
+                <li id ="{{canale.id}}" class="channelLayout" draggable="true">{{canale.name}} 
+                    {% if canale.description %}
+                        <span>{{canale.description}}</span>
+                    {% endif %}
+                    <span>{{name}}</span> 
+                    <i class="fas fa-arrows-alt drag"></i>
+                </li>                
+            {% endfor %}
+            </ul>
+
+            <div>
+                <input type="button" value="Salva disposizione" onclick="saveDisposition()">
+                <input type="button" value="Reset disposizione" onclick="resetOrder()">
+            </div>
+        </div>
+
+        <div class="eq-container" >
+            <span class="eq-close close-span" onclick="this.parentElement.style.display='none'">&times;</span>
+            <div class="first-line">
+                <h4 id="channel-name">Channel</h4>
+                <div id="gain-container">
+                    <label for="gain">Gain</label>
+                    <button type="button"  onclick="changeValueGain('minus')" >-</button>
+                    <input id="pre-amp" type="range" min="0" max="55" onchange="setPreamp(this.value)" oninput="setPreamp(this.value)" >
+                    <button type="button"  onclick="changeValueGain('plus')" >+</button>
+                </div>
+                <input type="checkbox" id="switchEQ" onchange="setEQSwitch(this.checked)" hidden>
+                <label for="switchEQ" class="mute">Switch EQ</label>
+            </div>
+
+            <div id="spinner" class="d-flex justify-content-center">
+                <div class="spinner-border" role="status">
+                </div>
+            </div>
+
+            <div class="graph-container">
+                <svg id="eqChart" width="800" height="400"></svg>
+            </div>
+            <div class="parameter-container">
+                <div class="band">
+                    <h6>Low</h6>
+                    <label>
+                        Frequenza (Hz)
+                        <input id="eq_low_freq" type="number" min="20" max="20000" step="1" class="freq">
+                    </label>
+                    <label>
+                        Gain (dB)
+                        <input id="eq_low_gain" type="number" min="-15" max="15" step="1" class="gain">
+                    </label>
+                </div>
+                <div class="band">
+                    <h6>Low-Mid</h6>
+                    <label>
+                        Frequenza (Hz)
+                        <input id="eq_low_mid_freq" type="number" min="20" max="20000" step="1" class="freq">
+                    </label>
+                    <label>
+                        Gain (dB)
+                        <input id="eq_low_mid_gain" type="number" min="-15" max="15" step="1" class="gain">
+                    </label>
+                    <label>
+                        Q 
+                        <input id="eq_low_mid_q" type="number" min="0.36" max="16" step="0.1" class="q">
+                    </label>
+                </div>
+                <div class="band">
+                    <h6>Mid-Hi</h6>
+                    <label>
+                        Frequenza (Hz)
+                        <input id="eq_mid_hi_freq" type="number" min="20" max="20000" step="1" class="freq">
+                    </label>
+                    <label>
+                        Gain (dB)
+                        <input id="eq_mid_hi_gain" type="number" min="-15" max="15" step="1" class="gain">
+                    </label>
+                    <label>
+                        Q 
+                        <input id="eq_mid_hi_q" type="number" min="0.36" max="16" step="0.1" class="q">
+                    </label>
+                </div>
+                <div class="band">
+                    <h6>High</h6>
+                    <label>
+                        Frequenza (Hz)
+                        <input id="eq_high_freq" type="number" min="20" max="20000" step="1" class="freq">
+                    </label>
+                    <label>
+                        Gain (dB)
+                        <input id="eq_high_gain" type="number" min="-15" max="15" step="1" class="gain">
+                    </label>
+                </div>
+            </div>
+        </div>
+
+
+        <div class="aux-container">
+            <span class="aux-close close-span" onclick="closeAuxs()">&times;</span>
+            <div class="aux-inner-container">
+                <div class="aux-list">
+                    {% for aux, name in auxs.items() %}        
+                    <input type="radio" id="aux_{{aux}}" name="aux" onchange="loadAuxParameters({{aux}})">
+                    <label for="aux_{{aux}}">Aux {{aux}}<br>{{name}}</label>    
+                    {% endfor %}
+                </div>
+
+                <div id="aux_spinner" class="d-flex justify-content-center hidden-important">
+                    <div class="spinner-border" role="status">
+                    </div>
+                </div>
+                <div class="aux-channels hidden-important" id="aux-channels-id">
+                    <div class="aux-channels-container">
+                        <input id="aux_switch_main" onchange="checkSwitchAux('aux_main', this.checked)" type="checkbox"  {% if switch %} checked {% endif %} hidden>
+                        <label for="aux_switch_main" class="mute">Main</label>
+                        <button type="button" onclick="changeValueAux('main', 'plus')">+</button>
+                        <input class="inputRange rangeAux vertical"  type="range" min="0" max="100" value="0" id="aux_canale_main" onchange="sendMessageAux('main', this.value);" oninput="sendMessageAux('main', this.value);">
+                        <button type="button"  onclick="changeValueAux('main', 'minus')" >-</button>
+                        <span class="descrizione"></span>
+                    </div>
+                {% for canale, value, switch, name, link in canali %}
+                    {% if not link %}
+                    <div class="aux-channels-container">
+                        <p>{{canale.name}}</p>
+                        <button type="button" onclick="changeValueAux({{ canale.id }}, 'plus')">+</button>
+                        <input class="inputRange rangeAux vertical"  type="range" min="0" max="100" value="{{value}}" id="aux_canale_{{ canale.id }}" onchange="sendMessageAux( {{ canale.id }}, this.value);" oninput="sendMessageAux({{ canale.id }}, this.value);">
+                        <button type="button"  onclick="changeValueAux({{ canale.id }}, 'minus')" >-</button>
+                        <span class="descrizione">{% if name is not none %} <strong> {{ name }}</strong> {% endif %}</span>
+                    </div>
+                    {% endif %}
+                {% endfor %}
+                </div>
+            </div>
+        </div>
+
+
+        <script src="/static/script/mixer/scene.js"></script>
+
+        <script src="https://d3js.org/d3.v7.min.js"></script>
+        <script>
+            let channel = ""
+            let step = 1
+        </script>
+        <script src="/static/script/mixer/eq.js"></script>
+
+        <script src="/static/script/mixer/aux_script.js"></script>
+        <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js" defer></script>
+        <script src="/static/script/common/buttonHolding.js"></script>
+
+    </body>
+</html>

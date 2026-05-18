@@ -1,0 +1,33 @@
+.close-span{
+    position: absolute;
+    top: 0px;
+    right: 10px;
+    cursor: pointer;
+    font-weight: bold;
+    font-size: 24px;
+}
+
+#spinner {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    width: 100%;   /* larghezza contenitore */
+    height: 200px;  
+}
+
+.spinner-border {
+    width: 100px;   
+    height: 100px;
+    border-width: 0.3em; 
+}
+
+
+/* Slider orizzontali: permetti solo pan verticale (scroll Y), blocca X */
+input[type="range"]:not(.vertical) {
+  touch-action: pan-y;
+}
+
+/* Slider verticali: permetti solo pan orizzontale (scroll X), blocca Y */
+input[type="range"].vertical {
+  touch-action: pan-x;
+}

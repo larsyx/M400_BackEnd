@@ -1,0 +1,46 @@
+.slider, .slider_dca {
+    margin: 30px;
+    overflow-x: auto;
+    overflow-y: visible;
+    white-space: nowrap;
+    padding: 10px;
+    height: 40%;
+}
+
+.canale-container {
+    width: 150px;
+    height:  100%;
+    min-height: fit-content;
+    margin-right: 10px;
+    background: #f9f9f9;
+    padding: 10px;
+    border-radius: 10px;
+    box-shadow: 0 0 5px rgba(0,0,0,0.1);
+
+    display: inline-flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center; 
+    text-align: center;
+    gap: 25px;
+} 
+
+
+@media screen and (orientation: portrait) {
+    .slider, .slider_dca{
+        height: 40%;
+    }
+    .slider input[type="range"],
+    .slider_dca input[type="range"]{
+        height: 22% !important;
+        min-height: fit-content;
+    }
+}
+
+@media screen and (orientation: landscape) {
+
+    .slider input[type="range"],
+    .slider_dca input[type="range"]{
+        min-height: fit-content;
+    }   
+}

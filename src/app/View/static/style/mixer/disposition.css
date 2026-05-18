@@ -1,0 +1,51 @@
+.disposition-container{
+    display: flex;
+    justify-content: flex-start; /* centra orizzontalmente */
+    align-items: center;     /* centra verticalmente */
+    flex-direction: column;  /* se vuoi disporre gli elementi uno sotto l’altro */
+
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%); /* centra rispetto al suo centro */
+
+
+    z-index: 1000;              
+    background-color: white;
+    width: auto;
+    min-width: 80%;
+    height: 90%;
+    border: 2px solid black;
+    border-radius: 2%;
+    padding: 5%;
+
+    overflow-y: auto;
+
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.2s ease, visibility 0.2s ease;
+}
+
+.disposition-container ul {
+    list-style: none;
+    padding: 0;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.disposition-container li {
+    width: 80%;
+    padding: 10px;
+    margin: 5px 0;
+    background-color: #f0f0f0;
+    border: 1px solid #ccc;
+    border-radius: 10px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+}
+.disposition-container.visible{
+    opacity: 1;
+    visibility: visible;
+}

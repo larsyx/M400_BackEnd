@@ -1,0 +1,6 @@
+
+.menu-buttons button[type="button"] {
+    width: auto;
+    height: auto;
+    border-radius: 10px;
+}
