@@ -1,9 +1,9 @@
 from dotenv import load_dotenv
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
-from app.dao.channel_dao import ChannelDAO
-from app.dao.aux_dao import AuxDAO
-from app.dao.user_dao import UserDAO
+from dao.channel_dao import ChannelDAO
+from dao.aux_dao import AuxDAO
+from dao.user_dao import UserDAO
 from midi.midi_controller import MidiController, MidiListener, call_type
 import os 
 import json

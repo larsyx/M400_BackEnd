@@ -2,11 +2,11 @@ from http.client import HTTPResponse
 import os
 from fastapi.responses import HTMLResponse, RedirectResponse
 from fastapi.templating import Jinja2Templates
-from app.dao.aux_dao import AuxDAO
-from app.dao.partecipazione_scena_dao import PartecipazioneScenaDAO
-from app.dao.scene_dao import SceneDAO
-from app.dao.user_dao import UserDAO
-from app.dao.layout_canale_dao import LayoutCanaleDAO
+from dao.aux_dao import AuxDAO
+from dao.partecipazione_scena_dao import PartecipazioneScenaDAO
+from dao.scene_dao import SceneDAO
+from dao.user_dao import UserDAO
+from dao.layout_canale_dao import LayoutCanaleDAO
 from dotenv import load_dotenv
 from midi.midi_controller import MidiListener, call_type, MidiController
 import json

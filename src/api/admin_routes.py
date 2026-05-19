@@ -1,8 +1,8 @@
 from fastapi import APIRouter, Depends, Form, Request
 from fastapi.responses import FileResponse, HTMLResponse
-from app.auth.security import get_current_user, verify_admin
-from app.services.admin_service import AdminService
-from app.services.scene_service import SceneService 
+from auth.security import get_current_user, verify_admin
+from services.admin_service import AdminService
+from services.scene_service import SceneService 
 router = APIRouter()
 
 

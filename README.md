@@ -73,7 +73,7 @@ on macOs/Linux: source venv/bin/activate
 ### 4. Run the server
 from src directory
 ```bash
-    uvicorn app.main:app \
+    uvicorn main:app \
     --host 0.0.0.0 \
      --port 8000 \
      --app-dir . \

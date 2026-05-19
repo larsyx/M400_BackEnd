@@ -1,5 +1,5 @@
 from Database.database import DBSession
-from app.models.aux_ import Aux
+from models.aux_ import Aux
 
 
 class AuxDAO:

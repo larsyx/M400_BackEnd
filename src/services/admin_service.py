@@ -1,11 +1,11 @@
 from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
-from app.models.user import RuoloUtente
-from app.dao.channel_dao import ChannelDAO
-from app.dao.scene_dao import SceneDAO
-from app.dao.user_dao import UserDAO
-from app.dao.dca_dao import DCA_DAO
-from app.dao.partecipazione_scena_dao import PartecipazioneScenaDAO
+from models.user import RuoloUtente
+from dao.channel_dao import ChannelDAO
+from dao.scene_dao import SceneDAO
+from dao.user_dao import UserDAO
+from dao.dca_dao import DCA_DAO
+from dao.partecipazione_scena_dao import PartecipazioneScenaDAO
 from fastapi.responses import RedirectResponse
 import os
 import json
@@ -115,7 +115,7 @@ class AdminService:
 
     #mixer scene
     def load_mixer_scene(self, request):
-        file_path = os.path.join(os.path.dirname(__file__), "..", "..", "Database", "scenes.json")
+        file_path = os.path.join(os.path.dirname(__file__), "..", "Database", "scenes.json")
         with open(file_path, "r") as json_data:
             scene = json.load(json_data)
 
@@ -124,7 +124,7 @@ class AdminService:
             return self.templates.TemplateResponse(request, "manage_mixer_scene.html", {"scenes" : scenes})
 
     def add_mixer_scene(self, request, idScene, name):
-        file_path = os.path.join(os.path.dirname(__file__), "..", "..", "Database", "scenes.json")
+        file_path = os.path.join(os.path.dirname(__file__), "..", "Database", "scenes.json")
         with open(file_path, "r") as json_data:
             scene = json.load(json_data)
 
@@ -149,7 +149,7 @@ class AdminService:
             return RedirectResponse(url="/admin/manageSceneMixer", status_code=303)
 
     def remove_mixer_scene(self, request, idScene):
-        file_path = os.path.join(os.path.dirname(__file__), "..", "..", "Database", "scenes.json")
+        file_path = os.path.join(os.path.dirname(__file__), "..", "Database", "scenes.json")
         with open(file_path, "r") as json_data:
             data = json.load(json_data)
 
@@ -166,7 +166,7 @@ class AdminService:
         self.partecipazioneScenaDAO.change_aux_user(scene, user, aux)
 
     def load_default_user_layout(self, request):
-        file_path = os.path.join(os.path.dirname(__file__), "..", "..", "Database", "default_layout.json")
+        file_path = os.path.join(os.path.dirname(__file__), "..", "Database", "default_layout.json")
         with open(file_path, "r") as json_data:
             data = json.load(json_data)
 
@@ -183,7 +183,7 @@ class AdminService:
         return self.templates.TemplateResponse(request, "default_layout.html", {"canali": channels, "channels_layout": channels_layout, "drums_layout": drums_layout})
 
     def save_default_user_layout(self, channels, drums):
-        file_path = os.path.join(os.path.dirname(__file__), "..", "..", "Database", "default_layout.json")
+        file_path = os.path.join(os.path.dirname(__file__), "..", "Database", "default_layout.json")
         with open(file_path, "r") as json_data:
             data = json.load(json_data)
 

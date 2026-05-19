@@ -1,5 +1,5 @@
 from Database.database import DBSession
-from app.models.channel import Channel
+from models.channel import Channel
 
 
 class ChannelDAO:

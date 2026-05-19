@@ -1,5 +1,5 @@
 from Database.database import DBSession
-from app.models.profile_layout import ProfileLayout
+from models.profile_layout import ProfileLayout
 
 
 class ProfileLayoutDAO():

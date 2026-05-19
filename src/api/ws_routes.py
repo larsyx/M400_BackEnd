@@ -1,10 +1,10 @@
 from fastapi import APIRouter, WebSocket, WebSocketDisconnect
 
-from app.dao.dca_dao import DCA_DAO
-from app.auth.security import get_current_user_token, verify_mixer, verify_video
+from dao.dca_dao import DCA_DAO
+from auth.security import get_current_user_token, verify_mixer, verify_video
 from midi.midi_controller import MidiMixerSync, MidiUserSync, MidiVideoSync
-from app.dao.channel_dao import ChannelDAO
-from app.dao.aux_dao import AuxDAO
+from dao.channel_dao import ChannelDAO
+from dao.aux_dao import AuxDAO
 import os
 from dotenv import load_dotenv
 

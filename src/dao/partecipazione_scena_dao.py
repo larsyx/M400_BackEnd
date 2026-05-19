@@ -1,7 +1,7 @@
 from Database.database import DBSession
-from app.models.aux_ import Aux
-from app.models.scene_participation import SceneParticipation
-from app.models.user import RuoloUtente, User
+from models.aux_ import Aux
+from models.scene_participation import SceneParticipation
+from models.user import RuoloUtente, User
 
 
 class PartecipazioneScenaDAO:

@@ -1,10 +1,10 @@
 
 from fastapi import APIRouter, HTTPException, Request
 from fastapi.responses import HTMLResponse
-from app.dao.channel_dao import ChannelDAO
-from app.dao.layout_canale_dao import LayoutCanaleDAO
-from app.auth.security import get_current_user, verify_video
-from app.services.video_service import VideoService
+from dao.channel_dao import ChannelDAO
+from dao.layout_canale_dao import LayoutCanaleDAO
+from auth.security import get_current_user, verify_video
+from services.video_service import VideoService
 
 router = APIRouter()
 

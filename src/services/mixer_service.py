@@ -2,11 +2,11 @@ import json
 import os
 from fastapi.responses import RedirectResponse
 from fastapi.templating import Jinja2Templates
-from app.dao.channel_dao import ChannelDAO
-from app.dao.dca_dao import DCA_DAO
-from app.dao.aux_dao import AuxDAO
-from app.dto.response.aux_dto import AuxDTO
-from app.dto.response.fader_dto import FaderDTO
+from dao.channel_dao import ChannelDAO
+from dao.dca_dao import DCA_DAO
+from dao.aux_dao import AuxDAO
+from dto.response.aux_dto import AuxDTO
+from dto.response.fader_dto import FaderDTO
 from midi.midi_controller import MidiController, MidiListener, call_type, get_eq_address_value, get_eq_channel
 from dotenv import load_dotenv
 import json
@@ -133,7 +133,7 @@ class MixerService:
         return aux_dto_list
 
     def load_scenes(self):
-        with open(os.path.join(os.path.dirname(__file__), "..", "..", "Database", "scenes.json"), "r") as file:
+        with open(os.path.join(os.path.dirname(__file__), "..", "Database", "scenes.json"), "r") as file:
             scene = json.load(file)
 
         return scene.get('scenes', [])
@@ -394,10 +394,10 @@ class MixerService:
                 self.midiController.send_command(indirizzo, MidiController.convert_switch_to_hex(int(value)), token)
 
     def save_disposition(self, disposition):
-        with open(os.path.join(os.path.dirname(__file__), "..", "..", "Database", "mixer_disposition.json"), "w", encoding="utf-8") as f:
+        with open(os.path.join(os.path.dirname(__file__), "..", "Database", "mixer_disposition.json"), "w", encoding="utf-8") as f:
             json.dump({"disposition": disposition}, f, indent=4, ensure_ascii=False)
 
     def load_disposition(self):
-        with open(os.path.join(os.path.dirname(__file__), "..", "..", "Database", "mixer_disposition.json"), "r", encoding="utf-8") as f:
+        with open(os.path.join(os.path.dirname(__file__), "..", "Database", "mixer_disposition.json"), "r", encoding="utf-8") as f:
             data = json.load(f)
             return data.get("disposition", [])

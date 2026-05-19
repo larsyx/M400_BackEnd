@@ -1,8 +1,8 @@
 from sqlalchemy import desc
 from Database.database import DBSession
-from app.models.channel import Channel
-from app.models.layout_channel import LayoutChannel
-from app.dao.channel_dao import ChannelDAO 
+from models.channel import Channel
+from models.layout_channel import LayoutChannel
+from dao.channel_dao import ChannelDAO 
 import json
 import os
 
@@ -98,7 +98,7 @@ class LayoutCanaleDAO:
             return None
 
     def add_default_layout_channel(self, user, scene):
-        file_path = os.path.join(os.path.dirname(__file__), "..", "..", "Database", "default_layout.json")
+        file_path = os.path.join(os.path.dirname(__file__), "..", "Database", "default_layout.json")
         with open(file_path, "r") as json_data:
             data = json.load(json_data)
 

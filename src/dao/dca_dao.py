@@ -1,5 +1,5 @@
 from Database.database import DBSession
-from app.models.dca import DCA
+from models.dca import DCA
 
 
 class DCA_DAO:

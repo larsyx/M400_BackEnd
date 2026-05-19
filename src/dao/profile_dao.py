@@ -1,5 +1,5 @@
 from Database.database import DBSession
-from app.models.profile import Profile
+from models.profile import Profile
 
 class ProfileDAO:
     def __init__(self):

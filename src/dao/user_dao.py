@@ -1,5 +1,5 @@
 from Database.database import DBSession
-from app.models.user import RuoloUtente, User
+from models.user import RuoloUtente, User
 from sqlalchemy.orm import Session
 
 class UserDAO:

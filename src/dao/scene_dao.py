@@ -1,5 +1,5 @@
 from Database.database import DBSession
-from app.models.scene import Scene
+from models.scene import Scene
 
 
 class SceneDAO:

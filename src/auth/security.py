@@ -1,7 +1,7 @@
 
 from fastapi import  HTTPException, Request, status, WebSocket
-from app.dao.user_dao import UserDAO
-from app.auth.auth import verify_token  
+from dao.user_dao import UserDAO
+from auth.auth import verify_token  
 
 userDAO = UserDAO()
 

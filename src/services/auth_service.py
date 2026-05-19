@@ -1,9 +1,9 @@
 from fastapi.responses import RedirectResponse
 from fastapi import HTTPException, status
 from Database.database import DBSession
-from app.models import User
-from app.dao.user_dao import UserDAO
-from ..auth.auth import create_access_token
+from models import User
+from dao.user_dao import UserDAO
+from auth.auth import create_access_token
 
 class AuthService:
     def __init__(self):

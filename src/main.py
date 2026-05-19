@@ -2,7 +2,8 @@ from fastapi.exception_handlers import http_exception_handler
 from Database.database import DBSession
 from fastapi import FastAPI, Request
 from fastapi.middleware.cors import CORSMiddleware
-from app.api import admin_routes, ws_routes, login_routes, user_routes, mixer_routes, video_routes
+from api import admin_routes, login_routes, mixer_routes, user_routes, video_routes
+from api import ws_routes
 from fastapi.staticfiles import StaticFiles
 import os
 from fastapi.templating import Jinja2Templates

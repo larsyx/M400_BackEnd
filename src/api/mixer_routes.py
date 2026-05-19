@@ -1,7 +1,7 @@
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse
-from app.auth.security import get_current_user, verify_mixer
-from app.services.mixer_service import MixerService
+from auth.security import get_current_user, verify_mixer
+from services.mixer_service import MixerService
 
 router = APIRouter()
 mixer_service = MixerService()

@@ -1,6 +1,6 @@
 from fastapi import APIRouter, Form, Request
-from app.services.auth_service import AuthService
-from app.dao.user_dao import UserDAO
+from services.auth_service import AuthService
+from dao.user_dao import UserDAO
 
 
 router = APIRouter()

@@ -1,8 +1,8 @@
 from sqlalchemy import create_engine, event
 from sqlalchemy.orm import sessionmaker, declarative_base, Session
 from sqlalchemy.engine import Engine
-from app.models.scene_participation import SceneParticipation
-from app.models.layout_channel import LayoutChannel
+from models.scene_participation import SceneParticipation
+from models.layout_channel import LayoutChannel
 import os
 DATABASE_URL = "sqlite:///Database/database.db"
 

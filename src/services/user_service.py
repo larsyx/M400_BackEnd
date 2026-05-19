@@ -1,13 +1,13 @@
 
 from dotenv import load_dotenv
 from fastapi.templating import Jinja2Templates
-from app.dao.channel_dao import ChannelDAO
-from app.dao.layout_canale_dao import LayoutCanaleDAO
-from app.dao.partecipazione_scena_dao import PartecipazioneScenaDAO
-from app.dao.user_dao import UserDAO
-from app.dao.profile_dao import ProfileDAO
-from app.dao.profile_layout_dao import ProfileLayoutDAO
-from app.dao.aux_dao import AuxDAO
+from dao.channel_dao import ChannelDAO
+from dao.layout_canale_dao import LayoutCanaleDAO
+from dao.partecipazione_scena_dao import PartecipazioneScenaDAO
+from dao.user_dao import UserDAO
+from dao.profile_dao import ProfileDAO
+from dao.profile_layout_dao import ProfileLayoutDAO
+from dao.aux_dao import AuxDAO
 from fastapi.responses import RedirectResponse
 import os
 import json
