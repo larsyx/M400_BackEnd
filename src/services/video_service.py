@@ -89,14 +89,14 @@ class VideoService():
 
             address = channelAddresshex + address_aux
             
-            self.midiController.send_command(address, MidiController.convert_fader_to_hex(int(value)), token)
+            self.midiController.send_command(address, MidiController.convert_db_to_hex(value), token)
 
     def set_fader_main(self, token, value):
         aux = self.auxDAO.get_aux_by_id(self.auxId) 
 
         if aux:
             address_aux_main = [int(x,16) for x in aux.midi_address_main.split(",")] + self.postMainFader
-            self.midiController.send_command(address_aux_main, MidiController.convert_fader_to_hex(int(value)), token)
+            self.midiController.send_command(address_aux_main, MidiController.convert_db_to_hex(value), token)
 
     def set_switch_main(self, token, value):
         aux = self.auxDAO.get_aux_by_id(self.auxId)

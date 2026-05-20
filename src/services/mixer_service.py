@@ -123,6 +123,9 @@ class MixerService:
 
         return scene.get('scenes', [])
 
+    def load_scene(self, scene_id):
+        self.midi_controller.load_scene(scene_id)
+
     def get_aux_parameters(self, aux_id):
         aux = self.aux_dao.get_aux_by_id(aux_id)
         channels = self.channel_dao.get_all_channels()
@@ -161,7 +164,7 @@ class MixerService:
         if(canaleAddress != None):
             channelAddresshex = [int(x,16) for x in canaleAddress.split(",")]
             indirizzo = channelAddresshex + POST_MAIN_FADER
-            self.midi_controller.send_command(indirizzo, MidiController.convert_fader_to_hex(int(value)), token)
+            self.midi_controller.send_command(indirizzo, MidiController.convert_db_to_hex(value), token)
 
     def set_switch_channel(self, token, canaleId, switch):
         canaleAddress = self.channel_dao.get_channel_address(canaleId)
@@ -174,7 +177,7 @@ class MixerService:
 
     def set_main_fader_value(self, token, value):
         indirizzo = PRE_MAIN + POST_MAIN_FADER
-        self.midi_controller.send_command(indirizzo, MidiController.convert_fader_to_hex(int(value)), token)
+        self.midi_controller.send_command(indirizzo, MidiController.convert_db_to_hex(value), token)
 
     def set_main_switch_channel(self, token, switch):
         indirizzo = PRE_MAIN + POST_SWITCH
@@ -185,7 +188,7 @@ class MixerService:
 
         if dca:
             address = [int(x, 16) for x in dca.midi_address.split(",")] + DCA_FADER_POST
-            self.midi_controller.send_command(address, MidiController.convert_fader_to_hex(int(value)), token)
+            self.midi_controller.send_command(address, MidiController.convert_db_to_hex(value), token)
 
     def set_dca_switch_channel(self, token, dca_id, switch):
         dca = self.dca_dao.get_dca_by_id(dca_id)
@@ -193,9 +196,6 @@ class MixerService:
         if dca:
             address = [int(x, 16) for x in dca.midi_address.split(",")] + DCA_SWITCH_POST
             self.midi_controller.send_command(address, MidiController.convert_switch_to_hex(switch), token)
-
-    def load_scene(self, scene_id):
-        self.midi_controller.load_scene(scene_id)
 
 
     def eq_set(self, token, channel, typeFreq, typeEQ, value):
@@ -349,7 +349,7 @@ class MixerService:
 
                     indirizzo = channelAddresshex + address_aux
             if indirizzo:
-                self.midi_controller.send_command(indirizzo, MidiController.convert_fader_to_hex(int(value)), token)
+                self.midi_controller.send_command(indirizzo, MidiController.convert_db_to_hex(value), token)
 
     def set_switch_aux_value(self, token, auxId, canaleId, value):
         aux = self.aux_dao.get_aux_by_id(auxId)

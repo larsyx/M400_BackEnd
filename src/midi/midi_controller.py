@@ -67,50 +67,24 @@ class MidiController:
             print(f"[DEBUG] Errore durante la dispatch_sysex del messaggio MIDI: {e}")
     
     @staticmethod
-    def convert_fader_to_hex(value):
-        if value == 0:
-            return [0x78, 0x76]
-        if value >=75:
-            newvalue = ((value-75)/25)*100 
+    def convert_db_to_hex(db_value: float):
+        if db_value <= -90:
+            return [0x78, 0x76]  # mute
+
+        if db_value >= 0:
+            newvalue = (db_value / 10) * 100
             return [0x00, int(newvalue)]
-        
-        #conversione in db
-        decibel = 0
-        if value >= 50:
-            decibel = (((value-50)*10)/25) -10
 
-        if value < 50 and value >= 20:
-            decibel = value - 60
-
-        if value < 20 and value >= 10:
-            decibel = ((value-10)*2) -60
-
-        if value < 10 and value >= 1:
-            decibel = ((value-1)*(29.6/9))-89.6
-        
-
+        decibel = db_value
 
         decibel += 0.1
         decibel *= -10
         decibel = int(decibel)
-        first_value = 127 - int((decibel / 128))
+
+        first_value = 127 - (decibel // 128)
         second_value = 127 - (decibel % 128)
 
         return [first_value, second_value]
-
-    # @staticmethod
-    # def convert_fader_to_hex(value):
-    #     if value == 0:
-    #         return [0x78, 0x76]
-            
-    #     BASE = 120 * 128 + 125      
-    #     OFFSET = value - 1               
-
-    #     total = (BASE + OFFSET) % 16384
-
-    #     a = total // 128
-    #     b = total % 128
-    #     return [a, b]
 
     @staticmethod
     def convert_switch_to_hex(switch):
@@ -248,7 +222,7 @@ class MidiListener:
             key = data[6:10]
             with self.lock:
                 if key in self.midi_addresses and key not in self.received:
-                    self.received[key] = MidiListener.convert_hex_to_fader(data[10], data[11])
+                    self.received[key] = MidiListener.convert_hex_to_db(data[10], data[11])
 
     def callback_switch(self, msg, token=None):
         if not self.running:
@@ -333,58 +307,26 @@ class MidiListener:
     def get_results(self):
         with self.lock:
             return dict(self.received)
-        
+ 
     @staticmethod
-    def convert_hex_to_fader(firstValue, secondValue):
-        try:
-            if firstValue == 0x00:
-                value = (secondValue / 100) * 25 + 75
-                return round(value)
-            elif firstValue == 0x78:
-                return 0
-            elif firstValue == 0x79 or firstValue == 0x7A:
-                norm = round(((secondValue/127) * 4) + 1)
-                return norm if firstValue == 0x79 else norm + 4
-            elif firstValue == 0x7B:
-                norm = round((secondValue/127) * 6) 
-                return norm + 9
-            elif firstValue == 0x7C:
-                norm = round((secondValue/127) * 6)
-                return norm + 15
-            elif firstValue == 0x7D:
-                norm = round((secondValue/127) * 12)
-                return norm + 22
-            elif firstValue == 0x7E:
-                norm = round((secondValue/127) * 12)
-                return norm + 35
-            elif firstValue == 0x7F:
-                norm = round((secondValue/127) * 24)
-                return norm + 48
-            
-            return 0
-        except Exception as e:
-            print(f"errore: {e}")
+    def convert_hex_to_db(first_value: int, second_value: int) -> float:
 
-    # @staticmethod
-    # def convert_hex_to_fader(a: int, b: int):
-    #     if not (0 <= a <= 127 and 0 <= b <= 127):
-    #         raise ValueError("a e b devono essere compresi tra 0 e 127")
+        # mute
+        if first_value == 0x78 and second_value == 0x76:
+            return -90.0
 
-    #     if (a, b) == (0x78, 0x76):
-    #         return 0
+        # valori sopra unity (boost)
+        if first_value == 0x00:
+            return (second_value / 100.0) * 10
 
-    #     BASE = 120 * 128 + 125  
-    #     MODULO = 128 * 128     
+        # ricostruzione
+        decibel = (127 - first_value) * 128 + (127 - second_value)
 
-    #     total = a * 128 + b
-    #     diff = (total - BASE) % MODULO
+        decibel = decibel / 10.0
+        decibel *= -1
+        decibel -= 0.1
 
-    #     n = diff + 1
-
-    #     if not 1 <= n <= 1000:
-    #         raise ValueError(f"La coppia ({a}, {b}) non è nella sequenza da 0 a 1000")
-
-    #     return n
+        return decibel
     
     @staticmethod
     def convert_hex_to_switch(value):
@@ -480,7 +422,7 @@ class MidiUserSync():
                 canale = f"0x{data[6]:02X}, 0x{data[7]:02X}"
                 valore = 0
                 if data[8:10] == tuple(self.post_address):
-                    valore = MidiListener.convert_hex_to_fader(data[10], data[11])
+                    valore = MidiListener.convert_hex_to_db(data[10], data[11])
 
                     asyncio.run_coroutine_threadsafe(
                         self.send_back(canale, valore),
@@ -488,7 +430,7 @@ class MidiUserSync():
                     )
                 elif data[6:10] == tuple(self.addressMain + fader_post):
                     canale = "main"
-                    valore = MidiListener.convert_hex_to_fader(data[10], data[11])
+                    valore = MidiListener.convert_hex_to_db(data[10], data[11])
 
                     asyncio.run_coroutine_threadsafe(
                         self.send_back(canale, valore),
@@ -527,11 +469,11 @@ class MidiVideoSync():
                         typeCmd = "switch"
                         valore = MidiListener.convert_hex_to_switch(data[10])
                     elif data[8:10] == tuple(fader_post):
-                        valore = MidiListener.convert_hex_to_fader(data[10], data[11])
+                        valore = MidiListener.convert_hex_to_db(data[10], data[11])
                         typeCmd = "fader"
 
                 elif data[8:10] == tuple(self.post_address):
-                    valore = MidiListener.convert_hex_to_fader(data[10], data[11])
+                    valore = MidiListener.convert_hex_to_db(data[10], data[11])
                     typeCmd ="fader"
 
                 if typeCmd != "":
@@ -569,13 +511,13 @@ class MidiMixerSync():
                     typeCmd = "switch"
                     valore = MidiListener.convert_hex_to_switch(data[10])
                 elif data[8:10] == tuple(fader_post):
-                    valore = MidiListener.convert_hex_to_fader(data[10], data[11])
+                    valore = MidiListener.convert_hex_to_db(data[10], data[11])
                     typeCmd = "fader"
 
                 if data[6] == preDca[0]:
                     canale = f"0x{data[6]:02X}, 0x{data[7]:02X}"
                     if data[8:10] == tuple(dca_fader_post):
-                        valore = MidiListener.convert_hex_to_fader(data[10], data[11])
+                        valore = MidiListener.convert_hex_to_db(data[10], data[11])
                         typeCmd = "fader"
                     elif data[8:10] == tuple(dca_switch_post):
                         typeCmd = "switch"
