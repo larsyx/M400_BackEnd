@@ -18,51 +18,6 @@ async def fader(request: Request):
 
     return mixer_service.load_fader()
 
-@router.post("/fader")
-async def set_fader(request: Request):
-    user = get_current_user(request)
-    token = request.cookies.get("access_token")
-    verify_mixer(user["sub"])   
-    
-    data = await request.json()
-    canaleId = data.get("canaleId")
-    value = data.get("value")
-
-    mixer_service.set_fader_value(token, canaleId,value)
-
-@router.post("/fader/switch")
-async def set_switch_channel(request : Request):
-    user = get_current_user(request)
-    verify_mixer(user["sub"])   
-    token = request.cookies.get("access_token")
-
-    data = await request.json()
-    canaleId = data.get("canaleId")
-    switch = data.get("switch")
-
-    mixer_service.set_switch_channel(token, canaleId=canaleId, switch=switch)
-
-
-@router.post("/set/main")
-async def set_fader_main(request: Request):
-    user_data = get_current_user(request)
-    verify_mixer(user_data["sub"])
-    token = request.cookies.get("access_token")
-    data = await request.json()
-    value = data.get("value")
-
-    mixer_service.set_main_fader_value(token, value)
-
-@router.post("/switch/main")
-async def set_switch_main(request: Request):
-    user_data = get_current_user(request)
-    verify_mixer(user_data["sub"])
-    token = request.cookies.get("access_token")
-    data = await request.json()
-    switch = data.get("switch")
-
-    mixer_service.set_main_switch_channel(token, switch)
-
 
 #dca
 @router.get("/dca")
@@ -71,30 +26,6 @@ async def dca(request: Request):
     verify_mixer(user["sub"]) 
 
     return mixer_service.load_dca()
-
-@router.post("/dca")
-async def set_fader_DCA(request: Request):
-    user_data = get_current_user(request)
-    verify_mixer(user_data["sub"])
-    token = request.cookies.get("access_token")
-
-    data = await request.json()
-    dca = data.get("dca_id")
-    value = data.get("value")
-
-    mixer_service.set_dca_fader_value(token, dca, value)
-
-@router.post("/dca/switch")
-async def set_switch_DCA(request: Request):
-    user_data = get_current_user(request)
-    verify_mixer(user_data["sub"])
-    token = request.cookies.get("access_token")
-
-    data = await request.json()
-    dca = data.get("dca_id")
-    switch = data.get("switch")
-
-    mixer_service.set_dca_switch_channel(token, dca,  switch)
 
 
 #aux
