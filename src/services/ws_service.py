@@ -229,7 +229,7 @@ class WsService:
 
             case MsgType.SLIDER_SWITCH:
                 self.mixer_service.set_switch_channel(
-                    session_id, payload.get("channel"), bool(payload.get("value"))
+                    session_id, payload.get("channel"), bool(payload.get("switch"))
                 )
 
             case MsgType.DCA_VALUE:
