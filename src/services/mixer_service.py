@@ -8,7 +8,7 @@ from dto.response.aux_dto import AuxDTO
 from dto.response.fader_dto import FaderDTO
 from midi.midi_controller import MidiController, MidiListener, call_type, get_eq_address_value, get_eq_channel
 from settings import POST_MAIN_FADER, POST_SWITCH, PRE_MAIN, POST_EQ_SWITCH, POST_NAME, POST_LINK, PRE_PREAMP, POST_PREAMP, DCA_FADER_POST, DCA_SWITCH_POST
-from utils.hex_utils import string_to_hex_list
+from utils.utils import link_separation, string_to_hex_list
 
 
 class MixerService:
@@ -57,6 +57,8 @@ class MixerService:
             link = results_value_link.get((tuple(channel_address + POST_LINK)), False)
 
             fader_dto_list.append(FaderDTO(id=channel.id, value=value, name=channel.name, description=name, switch=switch, link=link))
+
+        fader_dto_list = link_separation(fader_dto_list)
 
         value_main = results_value.get((tuple(PRE_MAIN + POST_MAIN_FADER)), 0)
         switch_main = results_value_switch.get((tuple(PRE_MAIN + POST_SWITCH)), False)

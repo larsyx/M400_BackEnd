@@ -14,7 +14,7 @@ from services.mixer_service import MixerService
 from services.user_service import UserService
 from services.video_service import VideoService
 from settings import PRE_DCA
-from utils.hex_utils import string_to_hex_list
+from utils.utils import string_to_hex_list
 
 
 class MsgType(str, Enum):

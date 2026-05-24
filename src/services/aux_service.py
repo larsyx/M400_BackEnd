@@ -3,7 +3,7 @@ from dao.aux_dao import AuxDAO
 from dao.channel_dao import ChannelDAO
 from midi.midi_controller import MidiController
 from settings import POST_MAIN_FADER, POST_SWITCH
-from utils.hex_utils import string_to_hex_list
+from utils.utils import string_to_hex_list
 
 
 class AuxService:
