@@ -1,5 +1,7 @@
 from pydantic import BaseModel
 
+from models.layout_channel import TypeChannel
+
 class FaderDTO(BaseModel):
     id: int
     name: str
@@ -7,3 +9,4 @@ class FaderDTO(BaseModel):
     value: float
     switch: bool
     link: bool = False
+    type: TypeChannel | None = None

@@ -1,6 +1,7 @@
 from fastapi import APIRouter, Request
 from fastapi.responses import HTMLResponse
 from auth.security import get_current_user, verify_mixer
+from services.aux_service import AuxService
 from services.mixer_service import MixerService
 
 router = APIRouter(
@@ -8,7 +9,15 @@ router = APIRouter(
     tags=["Mixer"]
 )
 mixer_service = MixerService()
+aux_service = AuxService()
 
+
+@router.get("/home")
+async def load_home(request: Request):
+    user = get_current_user(request)
+    verify_mixer(user["sub"])
+
+    return mixer_service.load_home()
 
 #fader
 @router.get("/fader")
@@ -34,7 +43,7 @@ async def aux_name(request: Request):
     user = get_current_user(request)
     verify_mixer(user["sub"]) 
 
-    return mixer_service.load_aux_names()
+    return aux_service.load_aux_names()
 
 @router.get("/aux/{aux_id}")
 async def eq_preamp_get(request: Request, aux_id : int):

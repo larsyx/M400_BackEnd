@@ -9,66 +9,41 @@ from dao.profile_dao import ProfileDAO
 from dao.profile_layout_dao import ProfileLayoutDAO
 from dao.aux_dao import AuxDAO
 from fastapi.responses import RedirectResponse
+from dto.response.user_home_dto import UserHomeDTO
+from services.aux_service import AuxService
+from settings import POST_MAIN_FADER, POST_NAME
 import os
 import json
 
 from midi.midi_controller import MidiController, MidiListener, call_type
+from utils.utils import string_to_hex_list
 
 class UserService:
     def __init__(self):
-        load_dotenv()
-        self.userDAO = UserDAO()
-        self.auxDAO = AuxDAO()
-        self.partecipazioneScenaDAO = PartecipazioneScenaDAO()
-        self.layoutCanaleDAO = LayoutCanaleDAO()
-        self.channelDAO = ChannelDAO()
-        self.profileDAO = ProfileDAO()
-        self.profileLayoutDAO = ProfileLayoutDAO()
-        self.templates = Jinja2Templates(directory=os.path.join(os.path.dirname(__file__), "..", "view", "user"))
-        self.midiController = MidiController()
-        self.postMainFader = [int(val,16) for val in os.getenv("Main_Post_Fix_Fader").split(",")]
-        self.postName = [int(val,16) for val in os.getenv("Fader_Post_Name").split(",")]
+        self.user_dao = UserDAO()
+        self.aux_dao = AuxDAO()
+        self.scene_partecipation_dao = PartecipazioneScenaDAO()
+        self.layout_channel_dao = LayoutCanaleDAO()
+        self.channel_dao = ChannelDAO()
+        self.profile_dao = ProfileDAO()
+        self.profile_layout_dao = ProfileLayoutDAO()
+        self.midi_controller = MidiController()
+        self.aux_service = AuxService()
 
-    def load_scene(self, scenaID, userID, request):
-        
-        canali = self.layoutCanaleDAO.get_layout_channel(userID, scenaID)
-        aux = self.partecipazioneScenaDAO.get_aux_user(userID, scenaID)
-        hasBatteria = False
+    def load_scene(self, scene_id, user_id):
+        channel = self.layout_channel_dao.get_layout_channel(user_id, scene_id)
+        aux = self.scene_partecipation_dao.get_aux_user(user_id, scene_id)
 
-        if not aux:
-            return RedirectResponse(url="/user/getScenes", status_code=303)
+        profiles = self.get_profiles(user_id, scene_id)
 
-        for canale in canali:
-            if not hasBatteria and canale.is_drum:
-                hasBatteria = True
-                break
+        aux = self.aux_service.load_aux_names()
+        fader = self.aux_service.laod_fader_aux_scene(aux[0].id, channel)
 
-        profiles = self.get_profiles(userID, scenaID)
-
-        # auxs name
-        listenAddressAuxName = []
-        auxs = self.auxDAO.get_all_aux()
-        for a in auxs:
-            auxAddress = [int(x,16) for x in a.midi_address_main.split(",")]
-            listenAddressAuxName.append(auxAddress + self.postName)
-
-        resultsValueAuxName = MidiListener.init_and_listen(listenAddressAuxName, call_type.NAME) 
-        resultsValueAuxSetName = {}
-
-        for a in auxs:
-            auxAddress = [int(x,16) for x in a.midi_address_main.split(",")]
-            try:
-                resultsValueAuxSetName[a.id] = resultsValueAuxName[tuple(auxAddress + self.postName)]
-            except KeyError as k:
-                print("errore chiave ", k)
-                resultsValueAuxSetName[a.id] = ""
-
-
-        return self.templates.TemplateResponse("scene.html", {"request": request, "canali": canali, "aux" : aux, "auxs" : auxs, "auxNames" : resultsValueAuxSetName, "hasBatteria" : hasBatteria, 'profiles' : profiles})
+        return UserHomeDTO(fader=fader, aux=aux, profile=profiles)
 
     def set_layout(self, userID, scenaID, request):  
-        channels = self.channelDAO.get_all_channels()
-        layouts = self.layoutCanaleDAO.get_layout_channel(userID, scenaID)
+        channels = self.channel_dao.get_all_channels()
+        layouts = self.layout_channel_dao.get_layout_channel(userID, scenaID)
         
 
         layout_canali_ids = {layout_canale.channel_id for layout_canale in layouts}
@@ -173,9 +148,9 @@ class UserService:
 
     def get_profiles(self, user, scene_id):
         if scene_id == None or user == None or user == "":
-            return "Errore parametri"
+            raise Exception("Missing parameters")
 
-        return self.profileDAO.get_all_profile_user(user, scene_id)
+        return self.profile_dao.get_all_profile_user(user, scene_id)
 
     def load_profile(self, user, token, scene_id, profile_id):
         profiles =  self.profileLayoutDAO.get_profile_layout_user_scene(user, profile_id, scene_id)

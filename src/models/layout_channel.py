@@ -1,8 +1,15 @@
-from sqlalchemy import Column, String, Integer, ForeignKey, Boolean, ForeignKeyConstraint, and_
-from sqlalchemy.orm import relationship, foreign, remote
+from sqlalchemy import Column, Enum as SQLEnum, String, Integer, ForeignKey, Boolean
+from sqlalchemy.orm import relationship
+from enum import Enum
 
 
 from .base import Base
+
+
+class TypeChannel(Enum):
+    instrument = "instrument"
+    drum = "drum"
+    voice = "voice"
 
 
 class LayoutChannel(Base):
@@ -14,7 +21,8 @@ class LayoutChannel(Base):
 
     position = Column(Integer, nullable=False)
     description = Column(String, nullable=True)
-    is_drum = Column(Boolean, nullable=False, default = False)
+    type_channel = Column(SQLEnum(TypeChannel), nullable=True)
+    
 
     channel = relationship("Channel", back_populates="layout_channel")
 

@@ -1,12 +1,13 @@
 import json
 import os
-from fastapi.responses import RedirectResponse
 from dao.channel_dao import ChannelDAO
 from dao.dca_dao import DCA_DAO
 from dao.aux_dao import AuxDAO
 from dto.response.aux_dto import AuxDTO
 from dto.response.fader_dto import FaderDTO
+from dto.response.mixer_home_dto import MixerHomeDTO
 from midi.midi_controller import MidiController, MidiListener, call_type, get_eq_address_value, get_eq_channel
+from services.aux_service import AuxService
 from settings import POST_MAIN_FADER, POST_SWITCH, PRE_MAIN, POST_EQ_SWITCH, POST_NAME, POST_LINK, PRE_PREAMP, POST_PREAMP, DCA_FADER_POST, DCA_SWITCH_POST
 from utils.utils import link_separation, string_to_hex_list
 
@@ -17,6 +18,15 @@ class MixerService:
         self.dca_dao = DCA_DAO()
         self.aux_dao = AuxDAO()
         self.midi_controller = MidiController()
+        self.aux_service = AuxService()
+
+
+    def load_home(self):
+        faders = self.load_fader()
+        dca = self.load_dca()
+        aux = self.aux_service.load_aux_names()
+
+        return MixerHomeDTO(fader=faders, dca=dca, aux=aux)
 
     def load_fader(self):
         channels = self.channel_dao.get_all_channels()
@@ -31,7 +41,7 @@ class MixerService:
 
         # initialize the list of addresses for request and listen
         for channel in channels:
-            channel_address = [int(x,16) for x in channel.midi_address.split(",")] 
+            channel_address = string_to_hex_list(channel.midi_address)
             
             listen_address_fader.append(channel_address + POST_MAIN_FADER)
             listen_address_switch.append(channel_address + POST_SWITCH)
@@ -100,25 +110,6 @@ class MixerService:
             dca_dto_list.append(FaderDTO(id=dca.id, value=value, name=dca.name, description=name, switch=switch))
 
         return dca_dto_list
-    
-    def load_aux_names(self):
-        listen_address_aux_name = []
-        auxs = self.aux_dao.get_all_aux()
-
-        for aux in auxs:
-            address = [int(x,16) for x in aux.midi_address_main.split(",")]
-            listen_address_aux_name.append(address + POST_NAME)
-
-        results_value_aux_name = MidiListener.init_and_listen(listen_address_aux_name, call_type.NAME) 
-        aux_dto_list = []
-
-        for aux in auxs:
-            address = [int(x,16) for x in aux.midi_address_main.split(",")] 
-            
-            name = results_value_aux_name.get((tuple(address + POST_NAME)), aux.name)
-            aux_dto_list.append(AuxDTO(id=aux.id, name=name))
-
-        return aux_dto_list
 
     def load_scenes(self):
         with open(os.path.join(os.path.dirname(__file__), "..", "Database", "scenes.json"), "r") as file:

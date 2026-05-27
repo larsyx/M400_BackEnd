@@ -8,6 +8,7 @@ class Aux(Base):
     id = Column(Integer, primary_key=True)
     name = Column(String, nullable=False)
     midi_address = Column(String, nullable=False, unique=True)
+    midi_address_switch = Column(String, nullable=False, unique=True)
     midi_address_main = Column(String, nullable=False, unique=True)
 
     scene_participation = relationship("SceneParticipation", back_populates="aux")

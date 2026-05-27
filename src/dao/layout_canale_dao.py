@@ -35,12 +35,12 @@ class LayoutCanaleDAO:
             print(f"Error retrieving layout: {e}")
             return None
            
-    def set_layout_channel(self, user, scene, canale, posizione, descrizione, isBatteria):
+    def set_layout_channel(self, user, scene, canale, posizione, descrizione, type_channel):
         try:
             layout = self.get_layout_channel_by_id(user, scene, canale)
             layout.description = descrizione
             layout.position = posizione
-            layout.is_drum = isBatteria
+            layout.type_channel = type_channel
 
             self.db.add(layout)
             self.db.commit()
@@ -50,7 +50,7 @@ class LayoutCanaleDAO:
             print(f"Error setting layout: {e}")
             return None
         
-    def add_layout_channel(self, user, scene, canale, descrizione, isBatteria=False):
+    def add_layout_channel(self, user, scene, canale, descrizione):
         try: 
             layout = self.db.query(LayoutChannel).filter(
                 LayoutChannel.user_username == user,
@@ -65,8 +65,7 @@ class LayoutCanaleDAO:
                 channel_id=canale,
                 user_username=user,
                 position=posizione,
-                description=descrizione,
-                is_drum=isBatteria
+                description=descrizione
             )
 
             self.db.add(layout)
@@ -87,7 +86,7 @@ class LayoutCanaleDAO:
             ).all()
 
             for channel in updateChannel:
-                self.set_layout_channel(user,scene,channel.channel_id, channel.position-1, channel.description, channel.is_drum)
+                self.set_layout_channel(user,scene,channel.channel_id, channel.position-1, channel.description)
 
             self.db.delete(channelToRemove)
             self.db.commit()

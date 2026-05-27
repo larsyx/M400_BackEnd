@@ -7,26 +7,29 @@ from auth.security import get_current_user
 from services.user_service import UserService
 from services.scene_service import SceneService
 
-router = APIRouter()
+router = APIRouter(
+    prefix="/user",
+    tags=["User"]
+)
 
 user_service = UserService()
 scene_service = SceneService()
 
-@router.get("/user/getScenes", response_class=HTMLResponse)
+@router.get("/scene",)
 async def get_scenes(request: Request):
     user_data = get_current_user(request)
 
-    return scene_service.get_all_user_scene(user_data["sub"], request)
+    return scene_service.get_all_user_scene(user_data["sub"])
 
     
-@router.get("/user/scene_{scene_id}/", response_class=HTMLResponse)
+@router.get("/scene/{scene_id}/")
 async def load_scene(request: Request, scene_id: int):
     user_data = get_current_user(request)
     
-    return user_service.load_scene(userID = user_data["sub"], scenaID = scene_id, request=request)
+    return user_service.load_scene(user_id= user_data["sub"], scene_id= scene_id)
 
 
-@router.get("/user/scene_{scene_id}/layout", response_class=HTMLResponse)
+@router.get("/scene/{scene_id}/layout", response_class=HTMLResponse)
 async def set_layout(request: Request, scene_id: int):
     user_data = get_current_user(request)
 
