@@ -35,17 +35,18 @@ class UserService:
         if self._midi_controller is None:
             self._midi_controller = MidiController()
         return self._midi_controller
-
+    
+    
     def load_scene(self, scene_id, user_id):
         channel = self.layout_channel_dao.get_layout_channel(user_id, scene_id)
-        aux = self.scene_partecipation_dao.get_aux_user(user_id, scene_id)
+        aux_user = self.scene_partecipation_dao.get_aux_user(user_id, scene_id)
 
         profiles = self.get_profiles(user_id, scene_id)
 
         aux = self.aux_service.load_aux_names()
-        fader = self.aux_service.load_fader_aux_scene(aux[0].id, channel)
+        fader = self.aux_service.load_fader_aux_scene(aux_user.id, channel)
 
-        return UserHomeDTO(fader=fader, aux=aux, profile=profiles)
+        return UserHomeDTO(fader=fader, aux=aux, profile=profiles, auxUser=aux_user)
 
     def set_layout(self, userID, scenaID, request):  
         channels = self.channel_dao.get_all_channels()

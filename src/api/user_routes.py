@@ -15,13 +15,14 @@ router = APIRouter(
 user_service = UserService()
 scene_service = SceneService()
 
-@router.get("/scene",)
+# scene
+@router.get("/scenes")
 async def get_scenes(request: Request):
     user_data = get_current_user(request)
 
     return scene_service.get_all_user_scene(user_data["sub"])
 
-    
+# page scene
 @router.get("/scene/{scene_id}")
 async def load_scene(request: Request, scene_id: int):
     user_data = get_current_user(request)

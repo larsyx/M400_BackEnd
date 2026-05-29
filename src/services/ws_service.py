@@ -27,8 +27,8 @@ class MsgType(str, Enum):
 
 
 class WsRole(str, Enum):
-    USER = "user"
-    MIXER = "mixer"
+    USER = "utente"
+    MIXER = "mixerista"
     VIDEO = "video"
 
 
@@ -79,11 +79,17 @@ class WsService:
         return (channel.id if channel else None), False
 
     def make_user_sendback(self, websocket: WebSocket, state: WsConnectionState):
-        async def send_back(channel_address, value):
+        async def send_back(type, channel_address, value):
             try:
                 if state.is_active and state.authenticated:
                     channel_id, _ = self.resolve_channel(channel_address)
-                    await websocket.send_json({"channel": channel_id, "value": value})
+                    await websocket.send_json({
+                        "type": type,
+                        "payload": {
+                            "channel": channel_id,
+                            "value": value,
+                        },
+                    })
             except Exception as e:
                 print(f"errore sync {e}")
         return send_back
@@ -113,8 +119,10 @@ class WsService:
                     channel_id, _ = self.resolve_channel(channel_address)
                     await websocket.send_json({
                         "type": type,
-                        "channel": channel_id,
-                        "value": value,
+                        "payload": {
+                            "channel": channel_id,
+                            "value": value,
+                        },
                     })
             except Exception as e:
                 print(f"errore sync {e}")
@@ -128,8 +136,10 @@ class WsService:
                     if channel_id:
                         await websocket.send_json({
                             "type": type,
-                            "channel": channel_id,
-                            "value": value,
+                            "payload": {
+                                "channel": channel_id,
+                                "value": value,
+                            },
                         })
             except Exception as e:
                 print(f"errore liveSyncVideo {e}")

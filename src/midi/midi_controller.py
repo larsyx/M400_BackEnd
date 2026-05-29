@@ -474,22 +474,30 @@ class MidiUserSync():
     def listening(self, msg, token = None):
         if msg.type == 'sysex' and (token == None or token != self.token):
             data = tuple(msg.data)
+
             if data[:5] == tuple(header) and data[5] == Command_ID_Set:
                 canale = f"0x{data[6]:02X}, 0x{data[7]:02X}"
+
+                typeCmd = ""
                 valore = 0
-                if data[8:10] == tuple(self.post_address):
-                    valore = MidiListener.convert_hex_to_db(data[10], data[11])
 
-                    asyncio.run_coroutine_threadsafe(
-                        self.send_back(canale, valore),
-                        self.loop
-                    )
-                elif data[6:10] == tuple(self.addressMain + fader_post):
+                if data[6:8] == tuple(self.addressMain):
                     canale = "main"
-                    valore = MidiListener.convert_hex_to_db(data[10], data[11])
 
+                    if data[8:10] == tuple(switch_post):
+                        typeCmd = "switch"
+                        valore = MidiListener.convert_hex_to_switch(data[10])
+                    elif data[8:10] == tuple(fader_post):
+                        valore = MidiListener.convert_hex_to_db(data[10], data[11])
+                        typeCmd = "fader"
+
+                elif data[8:10] == tuple(self.post_address):
+                    valore = MidiListener.convert_hex_to_db(data[10], data[11])
+                    typeCmd = "fader"
+
+                if typeCmd != "":
                     asyncio.run_coroutine_threadsafe(
-                        self.send_back(canale, valore),
+                        self.send_back(typeCmd, canale, valore),
                         self.loop
                     )
 
