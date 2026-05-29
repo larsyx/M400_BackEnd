@@ -37,7 +37,7 @@ class UserService:
         profiles = self.get_profiles(user_id, scene_id)
 
         aux = self.aux_service.load_aux_names()
-        fader = self.aux_service.laod_fader_aux_scene(aux[0].id, channel)
+        fader = self.aux_service.load_fader_aux_scene(aux[0].id, channel)
 
         return UserHomeDTO(fader=fader, aux=aux, profile=profiles)
 

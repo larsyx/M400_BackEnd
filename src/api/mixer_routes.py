@@ -52,33 +52,6 @@ async def eq_preamp_get(request: Request, aux_id : int):
 
     return mixer_service.get_aux_parameters(aux_id)
 
-@router.post("/aux")
-async def set_fader(request: Request):
-    user = get_current_user(request)
-    verify_mixer(user["sub"])  
-    token = request.cookies.get("access_token") 
-    
-    data = await request.json()
-    auxId = data.get("auxId")
-    canaleId = data.get("canaleId")
-    value = data.get("value")
-
-    mixer_service.set_fader_aux_value(token, auxId, canaleId, value)
-
-@router.post("/aux/switch")
-async def set_fader(request: Request):
-    user = get_current_user(request)
-    verify_mixer(user["sub"])   
-    token = request.cookies.get("access_token")
-    
-    data = await request.json()
-    auxId = data.get("auxId")
-    canaleId = data.get("canaleId")
-    value = data.get("value")
-
-    mixer_service.set_switch_aux_value(token, auxId, canaleId, value)
-
-
 #scene
 @router.get("/scene")
 async def fader(request: Request):
@@ -88,7 +61,7 @@ async def fader(request: Request):
     return mixer_service.load_scenes()
 
 
-@router.get("/loadScene/{scene_id}")
+@router.post("/scene/{scene_id}")
 async def load_scene(request: Request, scene_id: int):
     user = get_current_user(request)
     verify_mixer(user["sub"])   

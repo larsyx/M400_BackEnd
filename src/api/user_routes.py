@@ -22,7 +22,7 @@ async def get_scenes(request: Request):
     return scene_service.get_all_user_scene(user_data["sub"])
 
     
-@router.get("/scene/{scene_id}/")
+@router.get("/scene/{scene_id}")
 async def load_scene(request: Request, scene_id: int):
     user_data = get_current_user(request)
     

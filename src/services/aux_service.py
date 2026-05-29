@@ -93,7 +93,7 @@ class AuxService:
         return fader_dto_list
     
        
-    def laod_fader_aux_scene(self, aux_id, channels):
+    def load_fader_aux_scene(self, aux_id, channels):
         listen_address_fader = []
         listen_address_switch = []
         listen_address_name = []
@@ -161,3 +161,5 @@ class AuxService:
             aux_dto_list.append(AuxDTO(id=aux.id, name=name))
 
         return aux_dto_list
+
+    # TODO maybe load_fader_values
