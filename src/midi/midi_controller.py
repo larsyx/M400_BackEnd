@@ -7,6 +7,8 @@ import os
 from enum import Enum
 import time
 
+from midi.exceptions import MidiConnectionError
+
 load_dotenv()
 Manufacturer_ID = int(os.getenv("MANUFACTURER_ID"), 0)
 Device_ID = int(os.getenv("DEVICE_ID"), 0)
@@ -42,27 +44,74 @@ eq_mid_hi_q = [int(val,0) for val in os.getenv("EQ_Post_Mid_HI_Q").split(",")]
 eq_high_gain = [int(val,0) for val in os.getenv("EQ_Post_Hi_Gain").split(",")]
 eq_high_freq = [int(val,0) for val in os.getenv("EQ_Post_Hi_Freq").split(",")]
 
-class MidiController: 
-    def __init__(self):
-        for port in mido.get_output_names():
-            if midi_name in port:
-                self.ped = port
-                break
+_MIDI_RETRY_DELAYS = [0.5, 1, 2, 4, 8]
 
-        if not self.ped:
-            raise Exception("Nessuna porta midi trovata.\nConnetti il pc al mixer e riprova.")
+
+def _find_output_port():
+    for port in mido.get_output_names():
+        if midi_name in port:
+            return port
+    return None
+
+
+def _find_input_port():
+    for port in mido.get_input_names():
+        if midi_name in port:
+            return port
+    return None
+
+
+def _with_midi_retry(operation):
+    """Esegue operation() ritentando in caso di errore di connessione MIDI.
+
+    Tentativo immediato + 5 retry con backoff [0.5, 1, 2, 4, 8] s.
+    Solleva MidiConnectionError se tutti i tentativi falliscono.
+    """
+    last_exc = None
+    delays = [0] + _MIDI_RETRY_DELAYS
+    for attempt, delay in enumerate(delays, start=1):
+        if delay:
+            time.sleep(delay)
+        try:
+            return operation()
+        except (IOError, OSError) as e:
+            last_exc = e
+            print(f"[MIDI] tentativo {attempt}/{len(delays)} fallito: {e}")
+    raise MidiConnectionError(
+        "Nessuna porta MIDI raggiungibile dopo 6 tentativi. Connetti il pc al mixer e riprova.",
+        original=last_exc,
+    )
+
+
+class MidiController:
+    def __init__(self):
+        self.ped = None
+        self._ensure_port_with_retry()
+
+    def _ensure_port(self):
+        port = _find_output_port()
+        if not port:
+            raise OSError("Nessuna porta MIDI di output trovata")
+        self.ped = port
+        return port
+
+    def _ensure_port_with_retry(self):
+        return _with_midi_retry(self._ensure_port)
 
     def send_command(self, address, data, token_user):
         sysex_msg = build_sysex(address, Command_ID_Set, data)
 
         msg = mido.Message('sysex', data=sysex_msg)
 
-        with mido.open_output(self.ped) as outport:
-            outport.send(msg)
+        def op():
+            port = self._ensure_port()
+            with mido.open_output(port) as outport:
+                outport.send(msg)
+        _with_midi_retry(op)
 
         try:
             multiplexer = get_midi_multiplexer()
-            multiplexer._dispatch_send(msg, token_user) 
+            multiplexer._dispatch_send(msg, token_user)
         except Exception as e:
             print(f"[DEBUG] Errore durante la dispatch_sysex del messaggio MIDI: {e}")
     
@@ -96,14 +145,21 @@ class MidiController:
 
         msg = mido.Message('sysex', data=sysex_msg)
 
-        with mido.open_output(self.ped) as outport:
-            outport.send(msg)
+        def op():
+            port = self._ensure_port()
+            with mido.open_output(port) as outport:
+                outport.send(msg)
+        _with_midi_retry(op)
 
     def load_scene(self, scene_number):
         channel, program_number = MidiController.convert_fader_to_hexScene(scene_number=scene_number)
         msg = mido.Message('program_change', program=program_number, channel=channel)
-        with mido.open_output(self.ped) as outport:
-            outport.send(msg)
+
+        def op():
+            port = self._ensure_port()
+            with mido.open_output(port) as outport:
+                outport.send(msg)
+        _with_midi_retry(op)
 
     @staticmethod
     def convert_fader_to_hexScene(scene_number):
@@ -535,15 +591,13 @@ class MidiMultiplexer:
         self.callbacks = []
         self.lock = threading.Lock()
 
-        port_name = None
-        for port in mido.get_input_names():
-            if midi_name in port:
-                port_name = port
-                break      
-        if not port_name:
-            raise Exception("Nessuna porta MIDI trovata. Assicurati che il dispositivo sia connesso e riprova.")
+        def op():
+            port_name = _find_input_port()
+            if not port_name:
+                raise OSError("Nessuna porta MIDI di input trovata")
+            return mido.open_input(port_name, callback=self._dispatch)
 
-        self.port = mido.open_input(port_name, callback=self._dispatch)
+        self.port = _with_midi_retry(op)
 
         
     def _dispatch_send(self, msg, token):

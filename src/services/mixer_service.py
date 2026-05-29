@@ -17,8 +17,14 @@ class MixerService:
         self.channel_dao = ChannelDAO()
         self.dca_dao = DCA_DAO()
         self.aux_dao = AuxDAO()
-        self.midi_controller = MidiController()
+        self._midi_controller = None
         self.aux_service = AuxService()
+
+    @property
+    def midi_controller(self):
+        if self._midi_controller is None:
+            self._midi_controller = MidiController()
+        return self._midi_controller
 
 
     def load_home(self):

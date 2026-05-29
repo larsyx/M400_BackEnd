@@ -20,7 +20,13 @@ class SceneService:
         self.user_dao = UserDAO()
         self.scene_partecipation_dao = PartecipazioneScenaDAO()
         self.layout_channel_dao = LayoutCanaleDAO()
-        self.midiController = MidiController()
+        self._midiController = None
+
+    @property
+    def midiController(self):
+        if self._midiController is None:
+            self._midiController = MidiController()
+        return self._midiController
 
     def manage_scene(self, request, adminUser):
         if self.user_dao.is_admin(adminUser):

@@ -27,8 +27,14 @@ class UserService:
         self.channel_dao = ChannelDAO()
         self.profile_dao = ProfileDAO()
         self.profile_layout_dao = ProfileLayoutDAO()
-        self.midi_controller = MidiController()
+        self._midi_controller = None
         self.aux_service = AuxService()
+
+    @property
+    def midi_controller(self):
+        if self._midi_controller is None:
+            self._midi_controller = MidiController()
+        return self._midi_controller
 
     def load_scene(self, scene_id, user_id):
         channel = self.layout_channel_dao.get_layout_channel(user_id, scene_id)

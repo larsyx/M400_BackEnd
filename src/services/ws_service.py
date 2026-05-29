@@ -47,6 +47,25 @@ class WsService:
         self.user_service = UserService()
         self.video_service = VideoService()
         self.aux_service = AuxService()
+        self.active_connections: set[WebSocket] = set()
+
+    def register_connection(self, websocket: WebSocket):
+        self.active_connections.add(websocket)
+
+    def unregister_connection(self, websocket: WebSocket):
+        self.active_connections.discard(websocket)
+
+    async def broadcast_midi_error(self, message: str, code: str = "MIDI_DISCONNECTED"):
+        payload = {"type": "midi_error", "payload": {"code": code, "message": message}}
+        stale = []
+        for ws in list(self.active_connections):
+            try:
+                await ws.send_json(payload)
+            except Exception as e:
+                print(f"[ws] broadcast_midi_error fallito su {ws}: {e}")
+                stale.append(ws)
+        for ws in stale:
+            self.active_connections.discard(ws)
 
     def resolve_channel(self, channel_address, allow_dca=False):
         if channel_address == 'main':

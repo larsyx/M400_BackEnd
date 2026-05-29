@@ -12,7 +12,13 @@ class AuxService:
     def __init__(self):
         self.channel_dao = ChannelDAO()
         self.aux_dao = AuxDAO()
-        self.midi_controller = MidiController()
+        self._midi_controller = None
+
+    @property
+    def midi_controller(self):
+        if self._midi_controller is None:
+            self._midi_controller = MidiController()
+        return self._midi_controller
 
     def set_fader_value(self, token, aux_id, channel_id, value):
         aux = self.aux_dao.get_aux_by_id(aux_id)

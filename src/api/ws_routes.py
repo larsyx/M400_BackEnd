@@ -12,6 +12,7 @@ logger = logging.getLogger(__name__)
 @router.websocket("/ws/liveSyncAux")
 async def live_aux(websocket: WebSocket):
     await websocket.accept()
+    ws_service.register_connection(websocket)
 
     state = WsConnectionState()
     sync = None
@@ -51,11 +52,13 @@ async def live_aux(websocket: WebSocket):
         if sync:
             sync.stop()
         state.is_active = False
+        ws_service.unregister_connection(websocket)
 
 
 @router.websocket("/ws/liveSyncMixer")
 async def live_mixer(websocket: WebSocket):
     await websocket.accept()
+    ws_service.register_connection(websocket)
 
     state = WsConnectionState()
     send_back = ws_service.make_mixer_sendback(websocket, state)
@@ -92,3 +95,4 @@ async def live_mixer(websocket: WebSocket):
         if sync:
             sync.stop()
         state.is_active = False
+        ws_service.unregister_connection(websocket)

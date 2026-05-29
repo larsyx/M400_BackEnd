@@ -21,7 +21,13 @@ class VideoService():
         self.postLink = [int(val,16) for val in os.getenv("Fader_Post_link").split(",")]
         self.auxId = os.getenv("VIDEO_AUX_ID") 
         self.templates = Jinja2Templates(directory=os.path.join(os.path.dirname(__file__), "..", "view", "video"))
-        self.midiController = MidiController()
+        self._midiController = None
+
+    @property
+    def midiController(self):
+        if self._midiController is None:
+            self._midiController = MidiController()
+        return self._midiController
 
     def load_scene(self, request):
         
