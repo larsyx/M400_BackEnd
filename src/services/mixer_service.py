@@ -82,7 +82,6 @@ class MixerService:
         fader_dto_list.append(FaderDTO(id=0, value=value_main, name="Main", switch=switch_main))
 
         return fader_dto_list
-    
 
     def load_dca(self):
         dcas = self.dca_dao.get_dca()

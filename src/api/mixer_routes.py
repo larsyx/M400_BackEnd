@@ -46,11 +46,11 @@ async def aux_name(request: Request):
     return aux_service.load_aux_names()
 
 @router.get("/aux/{aux_id}")
-async def eq_preamp_get(request: Request, aux_id : int):
+async def get_aux_values(request: Request, aux_id: int):
     user = get_current_user(request)
     verify_mixer(user["sub"])
 
-    return mixer_service.get_aux_parameters(aux_id)
+    return aux_service.load_fader_values(aux_id, None)
 
 #scene
 @router.get("/scene")

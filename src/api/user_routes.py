@@ -4,6 +4,7 @@ from fastapi.responses import HTMLResponse
 from dao.channel_dao import ChannelDAO
 from dao.layout_canale_dao import LayoutCanaleDAO
 from auth.security import get_current_user
+from services.aux_service import AuxService
 from services.user_service import UserService
 from services.scene_service import SceneService
 
@@ -14,6 +15,7 @@ router = APIRouter(
 
 user_service = UserService()
 scene_service = SceneService()
+aux_service = AuxService()
 
 # scene
 @router.get("/scenes")
@@ -28,6 +30,12 @@ async def load_scene(request: Request, scene_id: int):
     user_data = get_current_user(request)
     
     return user_service.load_scene(user_id= user_data["sub"], scene_id= scene_id)
+
+@router.get("/aux/{aux_id}")
+async def get_aux_values(request: Request, aux_id: int):
+    user = get_current_user(request)
+
+    return aux_service.load_fader_values(aux_id, None)
 
 
 @router.get("/scene/{scene_id}/layout", response_class=HTMLResponse)
