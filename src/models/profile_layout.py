@@ -1,5 +1,5 @@
 
-from sqlalchemy import Column, String, Integer, ForeignKey, Boolean, ForeignKeyConstraint, CheckConstraint
+from sqlalchemy import Column, String, Integer, Float, ForeignKey, Boolean, ForeignKeyConstraint, CheckConstraint
 from sqlalchemy.orm import relationship
 from .base import Base
 
@@ -15,7 +15,7 @@ class ProfileLayout(Base):
     #profile
     profile_id = Column(Integer, ForeignKey('profile.id', ondelete="CASCADE"), primary_key=True)
     
-    value = Column(Integer, nullable=False)
+    value = Column(Float, nullable=False)
     
 
     __table_args__ = (
@@ -24,7 +24,7 @@ class ProfileLayout(Base):
             ['layout_channel.channel_id','layout_channel.scene_id', 'layout_channel.user_username'], 
             ondelete="CASCADE" 
         ),
-        CheckConstraint('value >= 0 AND value <= 100', name='value_range'),
+        CheckConstraint('value >= -90 AND value <= 10', name='value_range'),
     )
 
     profile = relationship('Profile', back_populates='profile_layout', passive_deletes=True)

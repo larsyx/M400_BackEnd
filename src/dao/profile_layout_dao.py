@@ -56,16 +56,14 @@ class ProfileLayoutDAO():
             profiles_stored = self.get_profile_layout_user_scene(user, profile_id, scene_id)
 
             for profile in profiles:
-                key = int(profile["channel"])
-                value = int(profile["value"])
-
+                key = profile.id
+                value = profile.value
                 
                 if any(key == obj.channel_id for obj in profiles_stored):
                     self.update_profile_layout(user, profile_id, key, scene_id, value)
                 else:
-                    self.create_profile_layout(user, profile_id, profile["channel"], scene_id, profile["value"])
-
+                    self.create_profile_layout(user, profile_id, key, scene_id, value)
 
         except Exception as e:
             print(f"Error updating profiles layout: {e}")
-            return False    
+            return False

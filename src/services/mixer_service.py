@@ -42,7 +42,7 @@ class MixerService:
         # get value canali
         listen_address_fader = []
         listen_address_switch = []
-        listen_address_name = []
+        #listen_address_name = []
         listen_address_link = []
 
         # initialize the list of addresses for request and listen
@@ -51,7 +51,7 @@ class MixerService:
             
             listen_address_fader.append(channel_address + POST_MAIN_FADER)
             listen_address_switch.append(channel_address + POST_SWITCH)
-            listen_address_name.append(channel_address + POST_NAME)
+            #listen_address_name.append(channel_address + POST_NAME)
             listen_address_link.append(channel_address + POST_LINK)
 
         listen_address_fader.append(PRE_MAIN + POST_MAIN_FADER)
@@ -60,7 +60,7 @@ class MixerService:
         # channel request and listen
         results_value = MidiListener.init_and_listen(listen_address_fader, call_type.CHANNEL)
         results_value_switch = MidiListener.init_and_listen(listen_address_switch, call_type.SWITCH)     
-        results_value_name = MidiListener.init_and_listen(listen_address_name, call_type.NAME)       
+        #results_value_name = MidiListener.init_and_listen(listen_address_name, call_type.NAME)       
         results_value_link = MidiListener.init_and_listen(listen_address_link, call_type.SWITCH)    
 
         fader_dto_list = []
@@ -68,11 +68,11 @@ class MixerService:
         for channel in channels:
             channel_address = [int(x,16) for x in channel.midi_address.split(",")] 
             value = results_value.get((tuple(channel_address + POST_MAIN_FADER)), 0)
-            name = results_value_name.get((tuple(channel_address + POST_NAME)), channel.name)
+            #name = results_value_name.get((tuple(channel_address + POST_NAME)), channel.name)
             switch = results_value_switch.get((tuple(channel_address + POST_SWITCH)), False)
             link = results_value_link.get((tuple(channel_address + POST_LINK)), False)
 
-            fader_dto_list.append(FaderDTO(id=channel.id, value=value, name=channel.name, description=name, switch=switch, link=link))
+            fader_dto_list.append(FaderDTO(id=channel.id, value=value, name=channel.name, description=channel.description if channel.description else channel.name, switch=switch, link=link))
 
         fader_dto_list = link_separation(fader_dto_list)
 

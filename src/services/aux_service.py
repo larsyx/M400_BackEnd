@@ -143,55 +143,84 @@ class AuxService:
 
         return fader_dto_list
 
-    def load_fader_aux_scene(self, aux_id, channels):
-        listen_address_fader = []
-        listen_address_switch = []
+    def load_fader_names(self, channels):
+        if not channels:
+            channels = self.channel_dao.get_all_channels()
+
+        # get value canali
         listen_address_name = []
 
-
-        aux = self.aux_dao.get_aux_by_id(aux_id)
-        if not aux:
-            raise Exception("Aux inesistente")
-        
-        aux_addr_fader = string_to_hex_list(aux.midi_address)
-        aux_addr_swich = string_to_hex_list(aux.midi_address_switch)
-        aux_addr_main_fader = string_to_hex_list(aux.midi_address_main) + POST_MAIN_FADER
-        aux_addr_main_switch = string_to_hex_list(aux.midi_address_main) + POST_SWITCH
-
+        # initialize the list of addresses for request and listen
         for channel in channels:
-            
-            channel_address = string_to_hex_list(channel.channel.midi_address)
-            
-            listen_address_fader.append(channel_address + aux_addr_fader)
-            listen_address_switch.append(channel_address + aux_addr_swich)
+            channel_address = string_to_hex_list(channel.midi_address)
             listen_address_name.append(channel_address + POST_NAME)
 
-        listen_address_fader.append(aux_addr_main_fader)
-        listen_address_switch.append(aux_addr_main_switch)
 
-        # channel request and listen
-        results_value = MidiListener.init_and_listen(listen_address_fader, call_type.CHANNEL)
-        results_value_switch = MidiListener.init_and_listen(listen_address_switch, call_type.SWITCH)     
-        results_value_name = MidiListener.init_and_listen(listen_address_name, call_type.NAME)   
+        # channel request and listen   
+        results_value_name = MidiListener.init_and_listen(listen_address_name, call_type.NAME)
 
         fader_dto_list = []
 
         for channel in channels:
-            channel_address = string_to_hex_list(channel.channel.midi_address) 
-            value = results_value.get((tuple(channel_address + aux_addr_fader)), 0)
-            name = results_value_name.get((tuple(channel_address + POST_NAME)), channel.channel.name)
-            switch = results_value_switch.get((tuple(channel_address + aux_addr_swich)), False)
+            channel_address = [int(x,16) for x in channel.midi_address.split(",")] 
+            name = results_value_name.get((tuple(channel_address + POST_NAME)), channel.name)
 
-            fader_dto_list.append(FaderDTO(id=channel.channel.id, value=value, name=channel.channel.name, description=name, switch=switch, type=channel.type_channel))
-
-        fader_dto_list = link_separation(fader_dto_list)
-
-        value_main = results_value.get((tuple(aux_addr_main_fader)), 0)
-        switch_main = results_value_switch.get((tuple(aux_addr_main_switch)), False)
-
-        fader_dto_list.append(FaderDTO(id=0, value=value_main, name="Main", switch=switch_main))
+            fader_dto_list.append(FaderDTO(id=channel.id, value=0, name=channel.name, description=name, switch=False))
 
         return fader_dto_list
+
+    def load_fader_aux_scene(self, aux_id, channels):
+        try:
+            listen_address_fader = []
+            listen_address_switch = []
+            listen_address_name = []
+
+
+            aux = self.aux_dao.get_aux_by_id(aux_id)
+            if not aux:
+                raise Exception("Aux inesistente")
+            
+            aux_addr_fader = string_to_hex_list(aux.midi_address)
+            aux_addr_swich = string_to_hex_list(aux.midi_address_switch)
+            aux_addr_main_fader = string_to_hex_list(aux.midi_address_main) + POST_MAIN_FADER
+            aux_addr_main_switch = string_to_hex_list(aux.midi_address_main) + POST_SWITCH
+
+            for channel in channels:
+                
+                channel_address = string_to_hex_list(channel.channel.midi_address)
+                
+                listen_address_fader.append(channel_address + aux_addr_fader)
+                listen_address_switch.append(channel_address + aux_addr_swich)
+                listen_address_name.append(channel_address + POST_NAME)
+
+            listen_address_fader.append(aux_addr_main_fader)
+            listen_address_switch.append(aux_addr_main_switch)
+
+            # channel request and listen
+            results_value = MidiListener.init_and_listen(listen_address_fader, call_type.CHANNEL)
+            results_value_switch = MidiListener.init_and_listen(listen_address_switch, call_type.SWITCH)     
+            results_value_name = MidiListener.init_and_listen(listen_address_name, call_type.NAME)   
+
+            fader_dto_list = []
+
+            for channel in channels:
+                channel_address = string_to_hex_list(channel.channel.midi_address) 
+                value = results_value.get((tuple(channel_address + aux_addr_fader)), 0)
+                name = results_value_name.get((tuple(channel_address + POST_NAME)), channel.channel.name)
+                switch = results_value_switch.get((tuple(channel_address + aux_addr_swich)), False)
+
+                fader_dto_list.append(FaderDTO(id=channel.channel.id, value=value, name=channel.channel.name, description=name, switch=switch, type=channel.type_channel))
+
+            #TODO provare ad implementare link con user
+
+            value_main = results_value.get((tuple(aux_addr_main_fader)), 0)
+            switch_main = results_value_switch.get((tuple(aux_addr_main_switch)), False)
+
+            fader_dto_list.append(FaderDTO(id=0, value=value_main, name="Main", switch=switch_main))
+
+            return fader_dto_list
+        except Exception as e:
+            print(f"Errore: {e}")
 
     def load_aux_names(self):
         listen_address_aux_name = []

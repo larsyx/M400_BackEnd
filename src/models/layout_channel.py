@@ -28,4 +28,3 @@ class LayoutChannel(Base):
 
     scene = relationship("Scene", back_populates="layouts") 
     user = relationship("User", back_populates="layouts")   
-

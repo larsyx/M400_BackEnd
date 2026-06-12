@@ -27,6 +27,12 @@ async def fader(request: Request):
 
     return mixer_service.load_fader()
 
+@router.get("/fader/names")
+async def fader(request: Request):
+    user = get_current_user(request)
+    verify_mixer(user["sub"]) 
+
+    return aux_service.load_fader_names(None)
 
 #dca
 @router.get("/dca")
