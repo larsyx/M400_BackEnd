@@ -1,8 +1,10 @@
 from pydantic import BaseModel, ConfigDict
 
-class SceneDTO(BaseModel):
+from models.user import RuoloUtente
+
+class UserDTO(BaseModel):
     model_config = ConfigDict(from_attributes=True)
 
-    id: int
+    username: str
     name: str
-    description: str | None
+    role: RuoloUtente

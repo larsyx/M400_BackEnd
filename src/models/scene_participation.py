@@ -16,3 +16,12 @@ class SceneParticipation(Base):
     aux = relationship("Aux", back_populates="scene_participation")
 
     profiles = relationship("Profile", back_populates="scene_participation", cascade="all, delete-orphan")
+
+
+    @property
+    def username(self):
+        return self.user.username if self.user else None
+    
+    @property
+    def auxId(self):
+        return self.aux.id if self.aux else None

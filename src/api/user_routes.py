@@ -31,6 +31,12 @@ async def load_scene(request: Request, scene_id: int):
     
     return user_service.load_scene(user_id= user_data["sub"], scene_id= scene_id)
 
+@router.get("/aux")
+async def get_aux_values(request: Request):
+    user = get_current_user(request)
+
+    return aux_service.load_aux_names()
+
 @router.get("/aux/{aux_id}")
 async def get_aux_values(request: Request, aux_id: int):
     user = get_current_user(request)

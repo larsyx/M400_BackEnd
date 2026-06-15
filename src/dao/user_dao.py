@@ -52,12 +52,26 @@ class UserDAO:
 
     def create_user(self, username, nome, ruolo):
         try:
-            new_user = User(username=username, name=nome, role=RuoloUtente[ruolo])
+            new_user = User(username=username, name=nome, role=ruolo)
             self.db.add(new_user)
             self.db.commit()
             return new_user
         except Exception as e:
             print(f"Error creating user: {e}")
+            return None
+
+    def update_user(self, old_username, username, name, role):
+        try:
+            user = self.get_user_by_username(old_username)
+            if user:
+                user.name = name
+                user.username = username
+                user.role = role
+                
+                self.db.commit()
+                return user
+        except Exception as e:
+            print(f"Error update user: {e}")
             return None
 
     def delete_user(self, username):
@@ -72,24 +86,10 @@ class UserDAO:
         except Exception as e:
             print(f"Error deleting user: {e}")
             return None
-
-    def update_user(self, username, nome, ruolo):
-        try:
-            user = self.get_user_by_username(username)
-            if user:
-                user.name = nome
-                user.role = RuoloUtente[ruolo]
-                self.db.commit()
-                return user
-            else:
-                return None
-        except Exception as e:
-            print(f"Error updating user: {e}")
-            return None
         
     def get_all_users(self):
         try:
-            users = self.db.query(User).all()
+            users = self.db.query(User).order_by(User.role, User.username)
             return users
         except Exception as e:
             print(f"Error retrieving all users: {e}")
