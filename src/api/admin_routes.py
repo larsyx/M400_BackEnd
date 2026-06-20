@@ -1,11 +1,13 @@
 from fastapi import APIRouter, Depends, Form, Request
-from fastapi.responses import FileResponse, HTMLResponse
 from auth.security import get_current_user, verify_admin
 from dto.request.admin_scene_dto import AdminSceneDTO
 from dto.request.user_dto import UserDTO
+from dto.response.channel_dto import ChannelDTO
 from dto.response.channel_layout_dto import ChannelLayoutDTO
+from dto.response.fader_dto import FaderDTO
 from dto.response.scene_dto import SceneDTO
 from services.admin_service import AdminService
+from services.aux_service import AuxService
 from services.scene_service import SceneService 
 router = APIRouter(
     prefix="/admin"
@@ -13,6 +15,7 @@ router = APIRouter(
 
 scene_service = SceneService()
 admin_service = AdminService()
+aux_service = AuxService()
 
 
 # user manage
@@ -117,25 +120,18 @@ async def change_aux(request: Request, scene_id : int):
     admin_service.change_aux_user(user, aux, scene_id)
 
 # manage channel
-@router.get("/admin/manageChannels", response_class=HTMLResponse)
+@router.get("/channel")
 async def manage_user(request: Request):
     user = get_current_user(request)
-    verify_admin(user["sub"])
 
-    return admin_service.load_manage_channels(request, user["sub"])
+    return admin_service.load_channels(user["sub"])
 
-@router.post("/admin/manageChannels/changeDescription")
-async def change_description(request: Request):
+@router.post("/channel")
+async def change_description(request: Request, channels: list[ChannelDTO]):
     user = get_current_user(request)
     verify_admin(user["sub"])
 
-    data = await request.json()
-    typeReq = data.get("type")
-    id = data.get("id")
-    value = data.get("value")
-
-    return admin_service.change_description(user["sub"], typeReq, id, value)
-
+    return admin_service.set_channel(user["sub"], channels)
 
 # manage mixer scene
 @router.get("/admin/manageSceneMixer")

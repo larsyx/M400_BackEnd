@@ -9,6 +9,7 @@ class ProfileLayoutDAO():
     
     def create_profile_layout(self, user, profile_id, channel_id, scene_id, value=0):
         try:
+            value = max(-90, min(10, value))
             profile_layout = ProfileLayout(user_username = user, profile_id = profile_id, channel_id = channel_id, scene_id=scene_id, value= value)
 
             self.db.add(profile_layout)
@@ -20,6 +21,7 @@ class ProfileLayoutDAO():
 
     def update_profile_layout(self, user, profile_id, channel_id, scene_id, value = 0):
         try:
+            value = max(-90, min(10, value))
             profile_layout = (
                 self.db.query(ProfileLayout)
                 .filter_by(

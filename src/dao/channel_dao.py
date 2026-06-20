@@ -36,9 +36,12 @@ class ChannelDAO:
         else:
             return None
         
-    def update_channel_description(self, id, value):
+    def update_channel(self, id, description, position):
         try:
-            self.db.query(Channel).filter(Channel.id == id).update({Channel.description: value})
+            self.db.query(Channel).filter(Channel.id == id).update({
+                Channel.description: description,
+                Channel.position: position
+            })
             self.db.commit()
             return True
         except Exception as e:

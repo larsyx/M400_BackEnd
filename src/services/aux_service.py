@@ -33,7 +33,6 @@ class AuxService:
             if address:
                 self.midi_controller.send_command(address, MidiController.convert_db_to_hex(value), token)
 
-
     def set_switch_value(self, token, aux_id, channel_id, value):
         aux = self.aux_dao.get_aux_by_id(aux_id)
         if aux:
@@ -86,7 +85,7 @@ class AuxService:
             switch = results_value_switch.get((tuple(channel_address + aux_addr_swich)), False)
             link = results_value_link.get((tuple(channel_address + POST_LINK)), False)
 
-            fader_dto_list.append(FaderDTO(id=channel.id, value=value, name=channel.name, description=name, switch=switch, link=link))
+            fader_dto_list.append(FaderDTO(id=channel.id, value=value, name=channel.name, description=name, switch=switch, link=link, position=channel.position))
 
         fader_dto_list = link_separation(fader_dto_list)
 
@@ -102,7 +101,7 @@ class AuxService:
             channels = self.channel_dao.get_all_channels()
 
         listen_address_fader = []
-        listen_address_switch = []
+        #listen_address_switch = []
 
         aux = self.aux_dao.get_aux_by_id(aux_id)
         if not aux:
@@ -118,28 +117,28 @@ class AuxService:
             channel_address = string_to_hex_list(channel.midi_address)
             
             listen_address_fader.append(channel_address + aux_addr_fader)
-            listen_address_switch.append(channel_address + aux_addr_swich)
+            #listen_address_switch.append(channel_address + aux_addr_swich)
 
         listen_address_fader.append(aux_addr_main_fader)
-        listen_address_switch.append(aux_addr_main_switch)
+        #listen_address_switch.append(aux_addr_main_switch)
 
         # channel request and listen
         results_value = MidiListener.init_and_listen(listen_address_fader, call_type.CHANNEL)
-        results_value_switch = MidiListener.init_and_listen(listen_address_switch, call_type.SWITCH)
+        #results_value_switch = MidiListener.init_and_listen(listen_address_switch, call_type.SWITCH)
 
         fader_dto_list = []
 
         for channel in channels:
             channel_address = string_to_hex_list(channel.midi_address) 
             value = results_value.get((tuple(channel_address + aux_addr_fader)), 0)
-            switch = results_value_switch.get((tuple(channel_address + aux_addr_swich)), False)
+            #switch = results_value_switch.get((tuple(channel_address + aux_addr_swich)), False)
 
-            fader_dto_list.append(FaderDTO(id=channel.id, value=value, name=channel.name, switch=switch))
+            fader_dto_list.append(FaderDTO(id=channel.id, value=value, name=channel.name, switch=False, position=channel.position))
 
         value_main = results_value.get((tuple(aux_addr_main_fader)), 0)
-        switch_main = results_value_switch.get((tuple(aux_addr_main_switch)), False)
+        #switch_main = results_value_switch.get((tuple(aux_addr_main_switch)), False)
 
-        fader_dto_list.append(FaderDTO(id=0, value=value_main, name="Main", switch=switch_main))
+        fader_dto_list.append(FaderDTO(id=0, value=value_main, name="Main", switch=False))
 
         return fader_dto_list
 
@@ -165,7 +164,7 @@ class AuxService:
             channel_address = [int(x,16) for x in channel.midi_address.split(",")] 
             name = results_value_name.get((tuple(channel_address + POST_NAME)), channel.name)
 
-            fader_dto_list.append(FaderDTO(id=channel.id, value=0, name=channel.name, description=name, switch=False))
+            fader_dto_list.append(FaderDTO(id=channel.id, value=0, name=channel.name, description=name, switch=False, position=channel.position))
 
         return fader_dto_list
 
@@ -209,7 +208,7 @@ class AuxService:
                 name = results_value_name.get((tuple(channel_address + POST_NAME)), channel.channel.name)
                 switch = results_value_switch.get((tuple(channel_address + aux_addr_swich)), False)
 
-                fader_dto_list.append(FaderDTO(id=channel.channel.id, value=value, name=channel.channel.name, description=name, switch=switch, type=channel.type_channel))
+                fader_dto_list.append(FaderDTO(id=channel.channel.id, value=value, name=channel.channel.name, description=name, switch=switch, type=channel.type_channel, position=channel.channel.position))
 
             #TODO provare ad implementare link con user
 

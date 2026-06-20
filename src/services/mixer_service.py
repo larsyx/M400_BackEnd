@@ -72,7 +72,7 @@ class MixerService:
             switch = results_value_switch.get((tuple(channel_address + POST_SWITCH)), False)
             link = results_value_link.get((tuple(channel_address + POST_LINK)), False)
 
-            fader_dto_list.append(FaderDTO(id=channel.id, value=value, name=channel.name, description=channel.description if channel.description else channel.name, switch=switch, link=link))
+            fader_dto_list.append(FaderDTO(id=channel.id, value=value, name=channel.name, description=channel.description if channel.description else channel.name, switch=switch, link=link, position=channel.position))
 
         fader_dto_list = link_separation(fader_dto_list)
 
@@ -147,7 +147,7 @@ class MixerService:
             for channel in channels:
                 channel_address = [int(x,16) for x in channel.midi_address.split(",")] 
                 value = results_value.get((tuple(channel_address + address_aux)), 0)
-                fader_dto_list.append(FaderDTO(id=channel.id, name=channel.name, description=channel.name, value=value, switch=False, link=False))
+                fader_dto_list.append(FaderDTO(id=channel.id, name=channel.name, description=channel.name, value=value, switch=False, link=False, position=channel.position))
 
             value = results_value.get((tuple(aux_address + POST_MAIN_FADER)), 0)
             switch = next(iter(result_switch_main.values()), False)

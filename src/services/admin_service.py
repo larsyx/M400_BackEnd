@@ -3,6 +3,7 @@ from fastapi.responses import HTMLResponse
 from fastapi.templating import Jinja2Templates
 from dao.layout_canale_dao import LayoutCanaleDAO
 from dto.request.user_dto import UserDTO
+from dto.response.channel_dto import ChannelDTO
 from dto.response.channel_layout_dto import ChannelLayoutDTO
 from models.user import RuoloUtente
 from dao.channel_dao import ChannelDAO
@@ -14,6 +15,8 @@ from fastapi.responses import RedirectResponse
 import os
 import json
 
+from services.aux_service import AuxService
+
 class AdminService:
     def __init__(self):
         self.user_dao = UserDAO()
@@ -22,6 +25,7 @@ class AdminService:
         self.dca_dao = DCA_DAO()
         self.scene_partecipation_dao = PartecipazioneScenaDAO()
         self.layout_channel_dao = LayoutCanaleDAO()
+        self.aux_service = AuxService()
 
     # Users
     def get_users(self, user_id):
@@ -67,29 +71,22 @@ class AdminService:
             return HTTPException(status_code=403, content="Non hai i permessi per accedere a questa risorsa")
 
     # channel 
-    def load_manage_channels(self, request, user):
+    def load_channels(self, user):
         try:
-            if self.userDAO.is_admin(user):
-                channels = self.channelDAO.get_all_channels()
-                dcas = self.dcaDAO.get_dca()
-                return self.templates.TemplateResponse(request, "manage_channels.html", {"channels": channels, "dcas": dcas})
+            if self.user_dao.is_admin(user) or self.user_dao.is_mixer(user):
+                channels = self.channel_dao.get_all_channels()
+                return [ChannelDTO(id=ch.id, name=ch.name, description= ch.description if ch.description else '' , type=ch.type_channel, position=ch.position) for ch in channels]
             else:
-                return HTMLResponse(status_code=403, content="Non hai i permessi per accedere a questa risorsa")
+                return HTTPException(status_code=403, detail="Non hai i permessi per accedere a questa risorsa")
         except Exception as e:
             print(f"Error loading manage channels: {e}")
             return None
 
-    def change_description(self, user, type, id, value):
+    def set_channel(self, user, channels):
         try:
-            if self.userDAO.is_admin(user):
-                if value == "":
-                    value = None
-                if type == "channel":
-                    self.channelDAO.update_channel_description(id, value)
-                    return True
-                elif type == "dca":
-                    self.dcaDAO.update_dca_description(id, value)
-                    return True
+            if self.user_dao.is_admin(user) or self.user_dao.is_mixer(user):
+                for channel in channels:
+                    self.channel_dao.update_channel(channel.id, channel.description, channel.position)
         except Exception as e:
             print(f"Error loading manage channels: {e}")
             return None
@@ -149,7 +146,7 @@ class AdminService:
 
     #Edit layout file   
     def load_default_layout(self, user_id):
-        channels = self.channel_dao.get_all_channels()
+        channel_names = self.aux_service.load_fader_names(None)
         layouts = self.layout_channel_dao.get_layout_channel(user_id, -1)
   
         channel_map = {
@@ -159,7 +156,7 @@ class AdminService:
                 description=channel.description if channel.description else channel.name,
                 type=None
             )
-            for channel in channels
+            for channel in channel_names
         }
         
         for layout in layouts:

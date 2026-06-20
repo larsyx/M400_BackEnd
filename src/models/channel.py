@@ -18,5 +18,6 @@ class Channel(Base):
     description = Column(String, nullable=True)
     midi_address = Column(String, nullable=False, unique=True)
     type_channel = Column(SQLEnum(TypeChannel), nullable=True)
+    position = Column(Integer, nullable=True)
 
     layout_channel = relationship("LayoutChannel", back_populates="channel")

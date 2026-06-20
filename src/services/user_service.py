@@ -57,9 +57,10 @@ class UserService:
 
     #layout
     def get_channel_layout(self, user_id, scene_id):
-        channels = self.channel_dao.get_all_channels()
         layouts = self.layout_channel_dao.get_layout_channel(user_id, scene_id)
   
+        channel_names = self.aux_service.load_fader_names(None)
+
         channel_map = {
             channel.id: ChannelLayoutDTO(
                 channel_id=channel.id,
@@ -67,7 +68,7 @@ class UserService:
                 description=channel.description if channel.description else channel.name,
                 type=None
             )
-            for channel in channels
+            for channel in channel_names
         }
         
         for layout in layouts:
@@ -251,6 +252,7 @@ class UserService:
                 value=profile.value,
                 switch=False,
                 type=channel.type_channel,
+                position=channel.position
             ))
 
         return fader_dto_list

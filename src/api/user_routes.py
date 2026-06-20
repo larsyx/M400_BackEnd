@@ -43,6 +43,12 @@ async def get_aux_values(request: Request, aux_id: int):
 
     return aux_service.load_fader_values(aux_id, None)
 
+@router.get("/fader/names")
+async def get_aux_values(request: Request):
+    user = get_current_user(request)
+
+    return aux_service.load_fader_names(None)
+
 # Layout
 @router.get("/scene/{scene_id}/layout")
 async def get_channel_layout(request: Request, scene_id: int):
